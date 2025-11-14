@@ -523,7 +523,7 @@
 								<input type="text" id="actNumber" placeholder="✎ Порядковый номер акта" value="1" required>
 								<input type="text" id="sender" placeholder="✎ ООО «Маркет.Операции»" value="">
 								<input type="text" id="executor" placeholder="✎ Яндекс Курьер" value="">
-								<input type="text" id="scanInput" class="scan-input-row" placeholder="Сканируйте ШК или введите номер и нажмите ⏎" maxlength="25">
+								<input type="text" id="scanInput" class="scan-input-row" placeholder="Сканируйте ШК или введите номер и нажмите ENTER" maxlength="25">
 							</div>
 							<div class="scan-list" id="scanList">
 								<p>Отсканированные посылки будут отображаться здесь...</p>
@@ -727,13 +727,15 @@
 
 					<h2>Пользовательское соглашение</h2>
 					<p>⠀</p>
-					<p><strong>Дата последнего обновления:</strong> 13.11.2025</p>
+					<p><strong>Дата последнего обновления:</strong> 14.11.2025</p>
 					<p>⠀</p>
-					<p">Настоящее Пользовательское соглашение регулирует отношения между вами (далее — «Пользователь») и владельцем приложения «Инструменты для ПВЗ» (далее — «Приложение») при использовании Приложения.</p>
+					<p">Настоящее Пользовательское соглашение регулирует отношения между Вами (далее — «Пользователь») и владельцем приложения «Инструменты для ПВЗ» (далее — «Приложение») при использовании Приложения.</p>
 					<p>⠀</p>
 					<h3>1. Общие положения</h3>
 					<p>⠀</p>
-					<p >Используя Приложение, вы соглашаетесь с условиями настоящего Соглашения. Если вы не согласны с каким-либо пунктом, вы не можете использовать Приложение.</p>
+					<p>Используя Приложение, вы соглашаетесь с условиями настоящего Соглашения. Если Вы не согласны с каким-либо пунктом, Вы не можете использовать Приложение.</p>
+					<p>⠀</p>
+					<p>Изменения исходного кода или его частей разрешаются только для личного пользования. Подробнее: <a href="https://github.com/offlexpl/pvz-instruments/blob/main/COMMERCIAL-LICENSE.md" target="_blank">Условия коммерческого и модифицированного использования</a></p>
 					<p>⠀</p>
 					<h3>2. Описание приложения</h3>
 					<p>⠀</p>
@@ -752,7 +754,7 @@
 					<p>⠀</p>
 					<ul style="padding-left: 40px;">
 						<li>Использовать Приложение исключительно в законных целях.</li>
-						<li>Никаким образом не видоизменять, не редактировать и не адаптировать исходный код Приложения или его отдельные части без явного письменного разрешения владельца.</li>
+						<li>Никаким образом не видоизменять, не редактировать и не адаптировать исходный код Приложения или его отдельные части для дальнейшей публикации или монетизации без явного письменного разрешения владельца.</li>
 						<li>Не использовать Приложение способами, которые могут повредить его функциональность или доступность для других пользователей.</li>
 						<li>Проверять точность и достоверность вводимых данных самостоятельно.</li>
 						<li><strong>Ознакомиться и согласиться с условиями настоящего Пользовательского соглашения и с Политикой конфиденциальности.</strong></li>
@@ -850,7 +852,34 @@
 			
 			function updateScanList() {
 				const scanList = document.getElementById('scanList');
-				const scanItems = scannedItems.map(item =>`<div class="scan-item"><span>${item.id}. ${item.code}</span><button onclick="removeScan(${item.id})">Х</button></div>`).join('');scanList.innerHTML = scannedItems.length === 0? '<p>Посылки будут отображаться здесь после сканирования...</p>': scanItems;
+				scanList.innerHTML = '';
+				if (scannedItems.length === 0) {
+					const placeholder = document.createElement('p');
+					placeholder.textContent = 'Посылки будут отображаться здесь после сканирования...';
+					placeholder.style.textAlign = 'center';
+					placeholder.style.paddingTop = '80px';
+					placeholder.style.fontSize = '24px';
+					placeholder.style.color = '#757575';
+					scanList.appendChild(placeholder);
+					return;
+				}
+
+				scannedItems.forEach(item => {
+					const div = document.createElement('div');
+					div.className = 'scan-item';
+
+					const span = document.createElement('span');
+					span.textContent = `${item.id}. ${item.code}`;
+
+					const button = document.createElement('button');
+					button.textContent = 'Х';
+					button.className = 'remove-scan-btn';
+					button.addEventListener('click', () => removeScan(item.id));
+
+					div.appendChild(span);
+					div.appendChild(button);
+					scanList.appendChild(div);
+				});
 			}
 			
 			function addScan() {

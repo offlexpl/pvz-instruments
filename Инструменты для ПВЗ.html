@@ -1,0 +1,1463 @@
+<!DOCTYPE html>
+<html lang="ru">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Инструменты для ПВЗ</title>
+		<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text x='50' y='75' font-size='80' fill='%23f1c40f' text-anchor='middle'>🔧</text></svg>" type="image/svg+xml">
+		<style>
+			:root {
+				--primary-color: #2c3e50;
+				--secondary-color: #34495e;
+				--accent-color: #FFCC00;
+				--text-color: #ABABAB;
+				--sidebar-bg: #212121;
+				--content-bg: #ffffff;
+				--border-color: #bdc3c7;
+				--hover-color: #434343;
+				--success-color: #27ae60;
+				--error-color: #e74c3c;
+				--error-color-hover: #d12a2a;
+				--input-bg: #F0F1F3;
+				--text-color-default: #212121;
+				--message-bg: #191919;
+			}
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+			}
+			body {
+				font-family: YS Display, YS Text, sans-serif;
+				display: flex;
+				height: 100vh;
+				background-color: var(--content-bg);
+				color: var(--text-color-default);
+			}
+			.sidebar {
+				min-width: 250px;
+				max-width: 250px;
+				background-color: var(--sidebar-bg);
+				color: var(--text-color);
+				display: flex;
+				flex-direction: column;
+				overflow-y: auto;
+			}
+			.sidebar-header {
+				max-height: 70px;
+				min-height: 70px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				background-color: var(--sidebar-bg);
+				
+			}
+			.sidebar-header span {
+				font-weight: regular;
+				font-size: 30px;
+				text-align: center;
+				color: white
+			}
+			.sidebar-menu {
+				padding: 20px 0;
+				flex-grow: 1;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				gap: 5px;
+			}
+			.menu-item {
+				width: 95%; 
+				max-width: 250px;
+				display: flex;
+				align-items: center;
+				padding: 12px 20px;
+				cursor: pointer;
+				justify-content: flex-start;
+				max-height: 45px;
+			}
+			.menu-item:hover {
+				background-color: var(--hover-color);
+				border-radius: 10px;
+				max-width: 250px;
+				max-height: 45px;
+			}
+			.menu-item.active {
+				background-color: transparent;
+				color: var(--accent-color);
+			}
+			.menu-item.active:hover {
+				background-color: var(--hover-color);
+				color: var(--accent-color);
+			}
+			.menu-item i {
+				margin-right: 10px;
+				width: 20px;
+				text-align: center;
+			}
+			.menu-item text {
+				font-size: 22px;
+				padding: 0 10px 5px 0;
+			}
+			.menu-item span {
+				flex-grow: 1;
+				font-weight: bold;
+			}
+			/* Main Content */
+			.main-content {
+				flex-grow: 1;
+				display: flex;
+				flex-direction: column;
+				overflow: hidden;
+			}
+			.header {
+				max-height: 70px;
+				min-height: 70px;
+				background-color: white;
+				border-bottom: 1px solid var(--input-bg);
+				display: flex;
+				align-items: center;
+				justify-content: flex-end;
+				padding-right: 20px;
+			}
+			.header-right-group {
+			  display: flex;
+			  align-items: center;
+			  gap: 8px;
+			}
+			.header p {
+			  margin: 0;
+			  font-size: 16px;
+			  color: #ababab;
+			}
+			.header-button {
+			  font-size: 24px;
+			  background-color: white;
+			  color: var(--primary-color);
+			  border: none;
+			  border-radius: 6px;
+			  cursor: pointer;
+			  display: flex;
+			  align-items: center;
+			  justify-content: center;
+			  text-shadow: 0 0 1px rgba(0,0,0,0.2);
+			}
+			.header-button:active {
+				transform: scale(0.9);
+				color: #333;
+			}
+			.page-content {
+				padding: 30px 20px 0 8px;
+				flex-grow: 1;
+				overflow-y: auto;
+			}
+			.page-title {
+				font-size: 44px;
+				font-weight: bold;
+				margin-left: 25px;
+			}
+			.tool-container {
+				padding: 10px 10px 0 10px;
+				background-color: white;
+				border-radius: 8px;
+			}
+			.form-section {
+				margin-bottom: 20px;
+			}
+			.form-grid {
+				display: grid;
+				grid-template-columns: 1fr 1fr 1fr;
+				gap: 10px 20px;
+				margin-bottom: 20px;
+				align-items: end;
+			}
+			.form-grid label {
+				text-align: left;
+				font-size: 15px;
+				color: #ababab;
+				margin-top: auto;
+				padding-bottom: 0px;
+			}
+			.form-grid input {
+				padding: 15px;
+				border: 0px solid var(--border-color);
+				border-radius: 10px;
+				background: var(--input-bg);
+				font-size: 15px;
+			}
+			.form-grid-unusual {
+				display: grid;
+				gap: 10px 20px;
+				margin-bottom: 15px;
+				align-items: top;
+			}
+			.form-grid-unusual label {
+				text-align: left;
+				font-size: 15px;
+				color: #ababab;
+				margin-top: auto;
+				padding-bottom: 2px;
+			}
+			.form-grid-unusual textarea {
+				font-family: YS Display, YS Text, sans-serif;
+				padding: 15px;
+				border: 0px solid var(--border-color);
+				border-radius: 10px;
+				background: var(--input-bg);
+				font-size: 15px;
+				resize: vertical;
+				box-sizing: border-box;
+				min-height: 50px;
+			}
+			.checkbox-section {
+				margin-top: 15px;
+			}
+			.checkbox-row {
+				display: flex;
+				align-items: flex-start;
+				gap: 10px;
+				padding: 20px 0;
+				border-bottom: 1px solid var(--border-color);
+				margin-bottom: 10px;
+			}
+			.checkbox-section .checkbox-row:last-child {
+				border-bottom: none;
+				margin-bottom: 0;
+			}
+			.checkbox-label {
+				color: #ababab;
+				font-size: 15px;
+				min-width: 400px;
+				flex-shrink: 0;
+			}
+			.checkbox-label input {
+				padding: 15px;
+				border: 0px solid var(--border-color);
+				border-radius: 10px;
+				background: var(--input-bg);
+				margin-bottom: 10px;
+				font-size: 17px;
+			}
+			.checkbox-container {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 10px;
+				flex-grow: 1;
+			}
+			.checkbox-container-icons {
+				align-items: center;
+			}
+			.styled-checkbox {
+				appearance: none;
+				-webkit-appearance: none;
+				-moz-appearance: none;
+				width: 20px;
+				height: 20px;
+				border: 1px solid var(--border-color);
+				border-radius: 5px;
+				background-color: var(--input-bg);
+				margin-right: 5px;
+				cursor: pointer;
+				position: relative;
+				top: 2px;
+			}
+			.styled-checkbox:checked {
+				background-color: var(--accent-color);
+				border-color: var(--accent-color);
+			}
+			.styled-checkbox:checked::after {
+				content: '✓';
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				color: var(--primary-color);
+				font-size: 14px;
+				font-weight: bold;
+			}
+			.checkbox-item {
+				display: flex;
+				align-items: center;
+				gap: 5px;
+			}
+			.checkbox-item-icon {
+				text-align: center;
+				flex-direction: column;
+				gap: 2px;
+			}
+			.checkbox-item-icon span {
+				font-size: 24px;
+				line-height: 1;
+				padding: 5px 5px 0 0;
+			}
+			.checkbox-item-with-input {
+				display: flex;
+				align-items: center;
+				gap: 5px;
+				flex-wrap: wrap;
+				flex-grow: 1;
+			}
+			.checkbox-item-with-input .inline-input {
+				flex-grow: 1;
+				min-width: 100px;
+				font-size: 15px;
+			}
+			.inline-input {
+				padding: 15px;
+				border: 0px solid var(--border-color);
+				border-radius: 10px;
+				background: var(--input-bg);
+				font-size: 17px;
+				width: 150px;
+				box-sizing: border-box;
+			}
+			.additional-info-section {
+				margin-top: 15px;
+			}
+			.scan-input-row {
+				grid-column: 1 / -1;
+				margin-top: 10px;
+			}
+			.scan-list {
+				max-height: 217px;
+				min-height: 217px;
+				overflow-y: auto;
+				padding: 10px;
+				border-radius: 10px;
+				background: var(--input-bg);
+				text-align: center;
+				margin-bottom: 20px;
+			}
+			.scan-list p {
+				text-align: center;
+				padding-top: 80px;
+				font-size: 24px;
+				color: #757575;
+			}
+			.scan-item {
+				padding: 8px;
+				margin: 5px 0;
+				background-color: rgba(148, 204, 90, 0.2);
+				border-radius: 10px;
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+			}
+			.scan-item button {
+				background-color: var(--error-color);
+				padding: 4px 8px;
+				border: none;
+				border-radius: 4px;
+				font-size: 12px;
+				color: white;
+				cursor: pointer;
+			}
+			.scan-item button:hover {
+				background-color: var(--error-color-hover);
+			}
+			.generate-button-container {
+				display: flex;
+				justify-content: center;
+			}
+			.generate-button {
+				padding: 12px 24px;
+				font-size: 15px;
+				background-color: var(--accent-color);
+				border: none;
+				border-radius: 10px;
+				cursor: pointer;
+				margin-top: 15px;
+			}
+			.generate-button:hover {
+				background-color: #F5C400;
+			}
+			.tool-content {
+				display: none;
+				padding: 20px 20px 0 20px;
+				background-color: white;
+				border-radius: 8px;
+			}
+			.tool-content.active {
+				display: block;
+			}
+			.hidden {
+				opacity: 0 !important;
+				pointer-events: none !important;
+				visibility: hidden !important;
+			}
+			.success-message,
+			.error-message {
+				position: fixed;
+				right: 20px;
+				max-width: 400px;
+				padding: 15px;
+				border-radius: 8px;
+				box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+				z-index: 1000;
+				opacity: 0;
+				transform: translateX(100%);
+				transition: opacity 0.35s ease, transform 0.35s ease;
+				visibility: hidden;
+			}
+			.success-message {
+				top: 40px;
+				background-color: var(--message-bg);
+				color: white;
+				border-radius: 8px;
+			}
+			.error-message {
+				position: fixed;
+				right: 20px;
+				top: 40px;
+				max-width: 400px;
+				padding: 15px;
+				border-radius: 8px;
+				box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+				z-index: 1000;
+				opacity: 0;
+				transform: translateX(100%);
+				transition: opacity 0.35s ease, transform 0.35s ease;
+				visibility: hidden;
+				background-color: var(--message-bg);
+				color: white;
+				font-size: 20px;
+				display: flex;
+				align-items: flex-start;
+				gap: 10px;
+			}
+			
+			.error-message-text {
+				flex: 1;
+				color: white;
+				font-size: 16px;
+				margin: 0;
+				line-height: 1.4;
+			}
+			
+			.error-description {
+				color: #7E7E7E;
+				font-size: 15px;
+			}
+			
+			.success-message:not(.hidden),
+			.error-message:not(.hidden) {
+				opacity: 1;
+				transform: translateX(0);
+				visibility: visible;
+			}
+			.footer-content {
+				padding: 20px 20px;
+				background-color: #F5F5F5;
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				font-size: 12px;
+				color: #6c757d;
+				min-height: 52px;
+				max-height: 52px;
+			}
+			.footer-links {
+				display: flex;
+				gap: 15px;
+			}
+			.footer-links a {
+				color: #007bff;
+				text-decoration: none;
+			}
+			.footer-links a:hover {
+				text-decoration: underline;
+			}
+			input:focus,
+			textarea:focus {
+				outline: 2px solid var(--accent-color);
+				outline-offset: -1px;
+				background-color: #fff;
+			}
+		</style>
+	</head>
+	<body>
+<!-- Меню -->
+		<div class="sidebar">
+			<div class="sidebar-header">
+				<span>ИНСТРУМЕНТЫ</span>
+			</div>
+			<div class="sidebar-menu">
+				<div class="menu-item active" data-tool="rap-generator" data-title="Генератор РАПП">
+					<text>📄</text>
+					<span>Генератор РАПП</span>
+				</div>
+				<div class="menu-item" data-tool="act-5-generator" data-title="Генератор Акта 5">
+					<text>📄</text>
+					<span>Генератор Акта 5</span>
+				</div>
+	<!--			<div class="menu-item" data-tool="services-act-analysis" data-title="Анализ акта услуг">
+					<text>🧮</text>
+					<span>Анализ акта услуг</span> 
+				</div>-->
+			</div>
+		</div>
+<!-- Главная страница -->
+		<div class="main-content">
+			<div class="header">
+			  <div class="header-right-group">
+				<!--<p>Настройки</p>-->
+				<button onclick="resetSavedFields()" class="header-button" data-tooltip="Сбросить сохранённые поля">⚙️</button>
+			  </div>
+			</div>
+			<div class="page-content">
+				<h1 class="page-title">Генератор РАПП</h1>
+				<div class="tool-container">
+					<!-- Генератор РАПП -->
+					<div class="tool-content active" id="rap-generator-content">
+						<div class="form-section">
+							<div class="form-grid">
+								<label for="actNumber">Номер акта*:</label>
+								<label for="sender">Отправитель*:</label>
+								<label for="executor">Исполнитель*:</label>
+								<input type="text" id="actNumber" placeholder="✎ Порядковый номер акта" value="1" required>
+								<input type="text" id="sender" placeholder="✎ ООО «Маркет.Операции»" value="">
+								<input type="text" id="executor" placeholder="✎ Яндекс Курьер" value="">
+								<input type="text" id="scanInput" class="scan-input-row" placeholder="Сканируйте ШК или введите номер и нажмите ⏎" maxlength="25">
+							</div>
+							<div class="scan-list" id="scanList">
+								<p>Отсканированные посылки будут отображаться здесь...</p>
+							</div>
+							<div class="generate-button-container">
+								<button onclick="generateActRAPP()" class="generate-button">🖨️ Распечатать</button>
+							</div>
+						</div>
+					</div>
+					<!-- Генератор Акта 5 -->
+					<div class="tool-content" id="act-5-generator-content">
+						<div class="form-section">
+							<div class="form-grid">
+								<label for="sender5">Отправитель*:</label>
+								<label for="executor5">Исполнитель*:</label>
+								<label for="recipient5">Получатель*:</label>
+								<input type="text" id="sender5" placeholder="✎ ООО «Яндекс Маркет»" value="ООО «Яндекс Маркет»">
+								<input type="text" id="executor5" placeholder="✎ ИП/ООО владельца ПВЗ" value="">
+								<input type="text" id="recipient5" placeholder="✎ Фамилия И.О. клиента" value="">
+								<label for="address5">Адрес ПВЗ*:</label>
+								<label for="orderNumber5">Номер заказа*:</label>
+								<div></div>
+								<input type="text" id="address5" placeholder="✎ Адрес вашего ПВЗ" value="">
+								<input type="text" id="orderNumber5" placeholder="✎ Номер заказа" value="">
+								<div></div>
+							</div>
+							<!-- Блок для всех чекбоксов с разделителями -->
+							<div class="checkbox-section">
+								<div class="checkbox-row">
+									<div class="checkbox-label">Причина составления*:</div>
+									<div class="checkbox-container">
+										<div class="checkbox-item"><input type="checkbox" id="reason1" class="styled-checkbox"><label for="reason1">повреждение вложения</label></div>
+										<div class="checkbox-item"><input type="checkbox" id="reason2" class="styled-checkbox"><label for="reason2">повреждение упаковки</label></div>
+										<div class="checkbox-item"><input type="checkbox" id="reason3" class="styled-checkbox"><label for="reason3">несоответствие вложения</label></div>
+										<div class="checkbox-item"><input type="checkbox" id="reason4" class="styled-checkbox"><label for="reason4">недостача вложения</label></div>
+										<div class="checkbox-item"><input type="checkbox" id="reason5" class="styled-checkbox"><label for="reason5">наличие стороннего/фирменного скотча Исполнителя</label></div>
+									</div>
+								</div>
+								<!-- Тип упаковки -->
+								<div class="checkbox-row">
+									<div class="checkbox-label">Тип упаковки*:</div>
+									<div class="checkbox-container">
+										<div class="checkbox-item"><input type="checkbox" id="pack1" class="styled-checkbox"><label for="pack1">картонный короб</label></div>
+										<div class="checkbox-item"><input type="checkbox" id="pack2" class="styled-checkbox"><label for="pack2">пакет</label></div>
+										<div class="checkbox-item"><input type="checkbox" id="pack3" class="styled-checkbox"><label for="pack3">деревянный ящик</label></div>
+										<div class="checkbox-item"><input type="checkbox" id="pack4" class="styled-checkbox"><label for="pack4">мешок</label></div>
+										<div class="checkbox-item"><input type="checkbox" id="pack5" class="styled-checkbox"><label for="pack5">стретч-пленка</label></div>
+										<div class="checkbox-item checkbox-item-with-input">
+											<input type="checkbox" id="packOtherCheck" class="styled-checkbox">
+											<label for="packOtherCheck">другое (укажите):</label>
+											<input type="text" id="packOther" class="inline-input">
+										</div>
+									</div>
+								</div>
+								<!-- Маркировка на упаковке -->
+								<div class="checkbox-row">
+									<div class="checkbox-label">Маркировка на упаковке:</div>
+									<div class="checkbox-container checkbox-container-icons">
+										<div class="checkbox-item checkbox-item-icon"><input type="checkbox" id="mark1" class="styled-checkbox"><span>↑↑</span><label for="mark1">хранить вертикально</label></div>
+										<div class="checkbox-item checkbox-item-icon"><input type="checkbox" id="mark2" class="styled-checkbox"><span>🍷</span><label for="mark2">хрупкий товар</label></div>
+										<div class="checkbox-item checkbox-item-icon"><input type="checkbox" id="mark3" class="styled-checkbox"><span>☂</span><label for="mark3">беречь от влаги</label></div>
+										<div class="checkbox-item checkbox-item-icon"><input type="checkbox" id="mark4" class="styled-checkbox"><span>⬆️</span><label for="mark4">не ставить сверху</label></div>
+										<div class="checkbox-item checkbox-item-icon"><input type="checkbox" id="mark5" class="styled-checkbox"><span>🔄</span><label for="mark5">не кантовать</label></div>
+									</div>
+								</div>
+								<!-- Описание повреждений -->
+								<div class="checkbox-row">
+									<div class="checkbox-label">Описание повреждений:</div>
+									<div class="checkbox-container">
+										<div class="checkbox-item"><input type="checkbox" id="damage1" class="styled-checkbox"><label for="damage1">деформация упаковки</label></div>
+										<div class="checkbox-item"><input type="checkbox" id="damage2" class="styled-checkbox"><label for="damage2">наличие доступа к вложению</label></div>
+										<div class="checkbox-item"><input type="checkbox" id="damage3" class="styled-checkbox"><label for="damage3">вмятины/замятия на упаковке</label></div>
+										<div class="checkbox-item"><input type="checkbox" id="damage4" class="styled-checkbox"><label for="damage4">намокание/промокание</label></div>
+										<div class="checkbox-item"><input type="checkbox" id="damage5" class="styled-checkbox"><label for="damage5">расхождение в весе</label></div>
+										<div class="checkbox-item checkbox-item-with-input">
+											<input type="checkbox" id="damageOtherCheck" class="styled-checkbox">
+											<label for="damageOtherCheck">другое (укажите):</label>
+											<input type="text" id="damageOther" class="inline-input">
+										</div>
+									</div>
+								</div>
+							</div>
+							<!-- Дополнительные сведения -->
+							<div class="form-grid-unusual">
+								<label for="additionalInfo5">Дополнительные сведения:</label>
+								<textarea id="additionalInfo5" placeholder="✎ Опишите повреждения" rows="1"></textarea>
+							</div>
+							<!-- Подписи -->
+							<div class="form-grid">
+								<label for="executorName5">Представитель Исполнителя*:</label>
+								<label for="executorPosition5">Должность*:</label>
+								<label></label>
+								<input type="text" id="executorName5" placeholder="✎ Фамилия И.О. сотрудника" class="form-grid-input">
+								<input type="text" id="executorPosition5" placeholder="✎ Оператор" value="Оператор" class="form-grid-input">
+							</div>
+							<div class="generate-button-container">
+								<button onclick="generateAct5()" class="generate-button">🖨️ Распечатать</button>
+							</div>
+						</div>
+					</div>
+					<!-- Анализатор акта услуг -->
+					<div class="tool-container">
+						<div class="tool-content" id="services-act-analysis-content">
+							<text>Данный инструмент производит полный анализ детализированного акта услуг. 
+							Если загрузить .xlsx анализ за прошлые месяцы, автоматически добавит новые данные 
+							и выдаст полный файл со всеми данными и готовой таблицей.</text>
+							<div class="form-section">
+								<div class="form-grid">
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+<!-- Подвал -->
+			<div class="footer-content">
+				<div class="footer-links">
+					<a href="https://github.com/offlexpl/pvz-instruments" target="_blank">GitHub</a>
+					<a href="#" onclick="showPrivacyPolicy(); return false;">Политика конфиденциальности</a>
+					<a href="#" onclick="showTerms(); return false;">Пользовательское соглашение</a>
+				</div>
+				<div class="footer-version">
+					<span>Версия: <span id="version-display">Загрузка...</span></span>
+				</div>
+			</div>
+<!-- Уведомления -->
+			<div id="successMessage" class="success-message hidden">
+				✅ Акт успешно сгенерирован!
+			</div>
+			<div id="errorMessage" class="error-message hidden">
+				Ошибка: Заполните все обязательные поля и добавьте хотя бы одну посылку.
+			</div>
+<!-- Подсказка -->
+			<div id="custom-tooltip" style="
+				position: fixed;
+				pointer-events: none;
+				background: #333;
+				color: white;
+				padding: 4px 8px;
+				border-radius: 4px;
+				font-size: 13px;
+				white-space: nowrap;
+				z-index: 10000;
+				opacity: 0;
+				transition: opacity 0.2s;
+				box-shadow: 0 2px 6px rgba(0,0,0,0.2);">
+			</div>
+<!-- Политика Конфиденциальности -->
+			<div id="privacy-policy-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 10000;">
+				<div style="position: relative; width: 90%; max-width: 800px; height: 80%; max-height: 800px; margin: 5% auto; background-color: white; border-radius: 10px; padding: 40px; overflow-y: auto; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
+
+					<h2>Политика конфиденциальности</h2>
+					<p>⠀</p>
+					<p><strong>Дата последнего обновления:</strong> 13.11.2025</p>
+					<p>⠀</p>
+					<p>Ценю Ваше доверие и стремлюсь защищать Вашу конфиденциальность. Настоящая политика конфиденциальности объясняет, как собирается информация при использовании приложения "Инструменты для ПВЗ" (далее - Приложение).</p>
+					<p>⠀</p>
+					<h3>Использование сторонних сервисов:</h3>
+					<p>⠀</p>
+					<p>Для сбора статистики используется Яндекс.Метрика.</p>
+					<p>⠀</p>
+					<h3>Какая информация собирается:</h3>
+					<p>⠀</p>
+					<p>Яндекс.Метрика собирает информацию о:</p>
+					<p>⠀</p>
+					<ul style="padding-left: 30px;">
+						<li>Просмотрах страниц (факте посещения приложения).</li>
+						<li>Визитах (сеансах использования).</li>
+						<li>Количество уникальных посетителей.</li>
+						<li>Времени, проведенном на сайте.</li>
+					</ul>
+					<p>⠀</p>
+					<p>Эта информация агрегирована и не содержит персональных данных пользователей. При этом, если Вы используете локальную версию Приложения (скаченную на Ваш ПК), Яндекс.Метрика не работает и не собирает данные из-за политики безопастности браузера.</p>
+					<p>⠀</p>
+					<h3>Цель сбора данных:</h3>
+					<p>⠀</p>
+					<p>Собранные данные используются исключительно для анализа поведения пользователей, выявления проблем в интерфейсе и улучшения функциональности Приложения.</p>
+					<p>⠀</p>
+					<h3>Ваши права:</h3>
+					<p>⠀</p>
+					<p>Приложение не собирает и не хранит персональную информацию пользователей. Все введенные Вами данные (например - адреса, ФИО) остаются локально в Вашем браузере и не передаются никуда.</p>
+					<p>⠀</p>
+					<p>Вы можете отказаться от сбора статистики, отключив JavaScript в вашем браузере, что, однако, может повлиять на работу Приложения.</p>
+					<p>⠀</p>
+					<h3>Изменения в политике:</h3>
+					<p>⠀</p>
+					<p>Я могу время от времени обновлять эту политику. Изменения вступают в силу с момента публикации обновленной версии Приложения.</p>
+					<p>⠀</p>
+					<h3>Ссылки:</h3>
+					<p>⠀</p>
+					<p>Для получения дополнительной информации о том, как Яндекс использует и защищает данные, пожалуйста, ознакомьтесь с официальной <a href="https://yandex.ru/legal/confidential/" target="_blank">Политикой конфиденциальности Яндекса</a>.</p>
+
+					<div style="padding-top: 10px; display: flex; justify-content: center; margin-top: 20px;">
+						<button onclick="hidePrivacyPolicy()" style="padding: 10px 20px; background-color: var(--accent-color); border: none; border-radius: 10px; cursor: pointer; font-size: 15px;">Закрыть</button>
+					</div>
+				</div>
+			</div>
+<!-- Пользовательское соглашение -->
+			<div id="terms-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 10000;">
+				<div style="position: relative; width: 90%; max-width: 800px; height: 80%; max-height: 800px; margin: 5% auto; background-color: white; border-radius: 8px; padding: 40px; overflow-y: auto; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
+
+					<h2>Пользовательское соглашение</h2>
+					<p>⠀</p>
+					<p><strong>Дата последнего обновления:</strong> 13.11.2025</p>
+					<p>⠀</p>
+					<p">Настоящее Пользовательское соглашение регулирует отношения между вами (далее — «Пользователь») и владельцем приложения «Инструменты для ПВЗ» (далее — «Приложение») при использовании Приложения.</p>
+					<p>⠀</p>
+					<h3>1. Общие положения</h3>
+					<p>⠀</p>
+					<p >Используя Приложение, вы соглашаетесь с условиями настоящего Соглашения. Если вы не согласны с каким-либо пунктом, вы не можете использовать Приложение.</p>
+					<p>⠀</p>
+					<h3>2. Описание приложения</h3>
+					<p>⠀</p>
+					<p>Приложение «Инструменты для ПВЗ» предназначено для упрощения работы сотрудников пунктов выдачи заказов (ПВЗ). Оно предоставляет инструменты для генерации стандартных документов, таких как РАПП и Акт 5, в соответствии с условиями оферты.</p>
+					<p>⠀</p>
+					<h3>3. Права и обязанности Пользователя</h3>
+					<p>⠀</p>
+					<p>Пользователь вправе:</p>
+					<p>⠀</p>
+					<ul style="padding-left: 40px;">
+						<li>Свободно использовать функционал Приложения по его прямому назначению, указанному в п.2 настоящего Соглашения.</li>
+						<li>Получать информацию о функциях и изменениях в Приложении, если они публикуются.</li>
+					</ul>
+					<p>⠀</p>
+					<p>Пользователь обязуется:</p>
+					<p>⠀</p>
+					<ul style="padding-left: 40px;">
+						<li>Использовать Приложение исключительно в законных целях.</li>
+						<li>Никаким образом не видоизменять, не редактировать и не адаптировать исходный код Приложения или его отдельные части без явного письменного разрешения владельца.</li>
+						<li>Не использовать Приложение способами, которые могут повредить его функциональность или доступность для других пользователей.</li>
+						<li>Проверять точность и достоверность вводимых данных самостоятельно.</li>
+						<li><strong>Ознакомиться и согласиться с условиями настоящего Пользовательского соглашения и с Политикой конфиденциальности.</strong></li>
+					</ul>
+					<p>⠀</p>
+					<p>Пользователь осознаёт, что все, введённые им, персональные данные обрабатываются локально в его браузере и не передаются на сервера разработчика.</p>
+					<p>⠀</p>
+					<h3>4. Интеллектуальная собственность</h3>
+					<p>⠀</p>
+					<p>Все права на Приложение, включая, но не ограничиваясь, исходный код, логику и документацию, принадлежат владельцу Приложения. Приложение предоставляется на условиях свободного доступа и не подлежит коммерческому распространению без разрешения владельца.</p>
+					<p>⠀</p>
+					<h3>5. Ограничение ответственности</h3>
+					<p>⠀</p>
+					<p>Приложение предоставляется «как есть», без каких-либо гарантий. Владелец Приложения не несёт ответственности за какие-либо убытки, возникшие в результате использования или невозможности использования Приложения.</p>
+					<p>⠀</p>
+					<h3>6. Изменения в соглашении</h3>
+					<p>⠀</p>
+					<p>Владелец Приложения может в любое время изменить настоящее Соглашение. Изменённая версия будет опубликована в этом разделе. Продолжение использования Приложения после публикации обновлённой версии означает согласие Пользователя с новыми условиями.</p>
+					<p>⠀</p>
+					<h3>7. Применимое право</h3>
+					<p>⠀</p>
+					<p>К настоящему соглашению применяется законодательство Российской Федерации. В случае возникновения споров, обе стороны обязуются приложить усилия для разрешения спора путём переговоров. В случае недостижения соглашения, спор подлежит рассмотрению в суде по месту нахождения владельца Приложения.</p>
+
+					<div style="padding-top: 10px; display: flex; justify-content: center; margin-top: 20px;">
+						<button onclick="hideTerms()" style="padding: 10px 20px; background-color: var(--accent-color); border: none; border-radius: 10px; cursor: pointer; font-size: 15px;">Закрыть</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script>
+				const currentVersion = "1.0.0";
+			document.addEventListener('DOMContentLoaded', function() {
+				const versionDisplayElement = document.getElementById('version-display');
+				if (versionDisplayElement) {
+					versionDisplayElement.textContent = currentVersion;
+				}
+			});
+			const autosaveFields = ['sender', 'executor', 'address5', 'executor5',];
+			autosaveFields.forEach(id => {
+				const el = document.getElementById(id);
+				if (el) {
+					const saved = localStorage.getItem(`act5_${id}`);
+					if (saved !== null) {
+						el.value = saved;
+					}
+					el.addEventListener('blur', () => {
+						localStorage.setItem(`act5_${id}`, el.value);
+					});
+				}
+			});
+
+			function resetSavedFields() {
+				autosaveFields.forEach(id => {
+				localStorage.removeItem(`act5_${id}`);
+				const el = document.getElementById(id);
+				if (el) el.value = '';
+				});
+			}
+
+			function showError(title, message) {
+				const errorEl = document.getElementById('errorMessage');
+				errorEl.innerHTML = `
+					<div>⚠️</div>
+					<div class="error-message-text">
+						<b>${title}</b><br><span class="error-description">${message}</span>
+					</div>
+				`;
+				errorEl.classList.remove('hidden');
+				setTimeout(() => errorEl.classList.add('hidden'), 5000);
+			}
+			
+			function hideError() {
+				document.getElementById('errorMessage').classList.add('hidden');
+			}
+			
+			let scannedItems = [];
+			const CUSTOMER = "ООО «Яндекс Маркет»";
+			const RUSSIAN_TO_ENGLISH = {
+				'й': 'Q', 'ц': 'W', 'у': 'E', 'к': 'R', 'е': 'T', 'н': 'Y', 'г': 'U', 'ш': 'I', 'щ': 'O', 'з': 'P', 'х': '[', 'ъ': ']',
+				'ф': 'A', 'ы': 'S', 'в': 'D', 'а': 'F', 'п': 'G', 'р': 'H', 'о': 'J', 'л': 'K', 'д': 'L', 'ж': ';', 'э': "'",
+				'я': 'Z', 'ч': 'X', 'с': 'C', 'м': 'V', 'и': 'B', 'т': 'N', 'ь': 'M', 'б': ',', 'ю': '.', 'ё': '`'
+			};
+			
+			function convertRussianToEnglish(str) {
+				return str.split('').map(char => {
+					const lowerChar = char.toLowerCase();
+					if (RUSSIAN_TO_ENGLISH.hasOwnProperty(lowerChar)) {
+						return char === lowerChar 
+							? RUSSIAN_TO_ENGLISH[lowerChar] 
+							: RUSSIAN_TO_ENGLISH[lowerChar].toUpperCase();
+					}
+					return char;
+				}).join('');
+			}
+			
+			function updateScanList() {
+				const scanList = document.getElementById('scanList');
+				const scanItems = scannedItems.map(item =>`<div class="scan-item"><span>${item.id}. ${item.code}</span><button onclick="removeScan(${item.id})">Х</button></div>`).join('');scanList.innerHTML = scannedItems.length === 0? '<p>Посылки будут отображаться здесь после сканирования...</p>': scanItems;
+			}
+			
+			function addScan() {
+				const scanInput = document.getElementById('scanInput');
+					let value = scanInput.value.trim();
+					if (!value) {
+						ym(105289488,'reachGoal','ADD_EMPTY')
+						showError("Нечего добавлять", "Введите номер отправления.");
+						return;
+					}
+					if (scannedItems.length >= 20) {
+						ym(105289488,'reachGoal','ADD_ALOT')
+						showError("Слишком много посылок", "Добавить можно не более 20 посылок. Обновите страницу и отсканируйте следующие грузоместа.");
+						return;
+					}
+					if (scanInput.length >= 108) {
+						showError("Error");
+						return;
+					}
+					value = convertRussianToEnglish(value);
+					const newItem = {
+						id: scannedItems.length + 1,
+						code: value,
+						customerSystem: value,
+						executorSystem: value,
+						declaredValue: "0.0"
+					};
+				ym(105289488,'reachGoal','ITEM_ADDED')
+				scannedItems.push(newItem);
+				updateScanList();
+				scanInput.value = '';
+				scanInput.focus();
+				hideError();
+			}
+			
+			function removeScan(id) {
+				scannedItems = scannedItems.filter(item => item.id !== id);
+				updateScanList();
+			}
+			
+			function generateActRAPP() {
+				const actNumber = document.getElementById('actNumber').value.trim();
+				const sender = document.getElementById('sender').value;
+				const executor = document.getElementById('executor').value;
+					if (!actNumber || !sender || !executor || scannedItems.length === 0) {
+						ym(105289488,'reachGoal','ACT_EMPTY')
+						showError("Акт пустой", "Заполните все обязательные поля и добавьте хотя бы одну посылку.");
+						return;
+					}
+
+				ym(105289488,'reachGoal','GENERATE_ACT_RAPP')
+				const today = new Date();
+				const formattedDate = `${today.getDate().toString().padStart(2, '0')}/${(today.getMonth() + 1).toString().padStart(2, '0')}/${today.getFullYear()}`;
+				const timeNow = today.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+				const pdfContent =
+	'<!DOCTYPE html>' +
+	'<html lang="ru">' +
+		'<head>' +
+		'<meta charset="UTF-8">' +
+		'<meta name="viewport" content="width=device-width, initial-scale=1.0">' +
+			'<title>Ручной акт №' + actNumber + '</title>' +
+			'<style>' +
+				'page{size:A4;margin:0;}' +
+				'body{font-family:Arial,sans-serif;margin:0;padding:20px;background:white;line-height:1.4;font-size:12px;}' +
+				'.act-container{max-width:800px;margin:0 auto;}' +
+				'.act-title{font-size:16px;font-weight:bold;margin:0 0 50px 0;text-align:center;}' +
+				'.info-row{margin:10px 0;}' +
+				'.info-label{font-weight:bold;display:inline-block;width:180px;}' +
+				'.content-text{margin:15px 0;}' +
+				'table{width:100%;border-collapse:collapse;margin:15px 0;font-size:11px;border:1px solid #000;}' +
+				'th,td{border:1px solid #000;padding:5px;text-align:left;vertical-align:top;}' +
+				'.header-row{background-color:#f2f2f2;}' +
+				'.header-row th{background-color:#f2f2f2;font-weight:bold;text-align:left;}' +
+				'.subheader-row th{font-weight:normal;text-align:left;}' +
+				'.total-row{background-color:#f2f2f2;font-weight:bold;}' +
+				'.signature-section{display:flex;justify-content:space-between;margin-top:0;padding-top:0;}' +
+				'.signature-box{width:45%;text-align:left;}' +
+				'.signature-line{margin-top:30px;border-bottom:1px solid #000;height:1px;}' +
+				'.date-footer{margin-top:20px;text-align:left;font-size:11px;}' +
+				'@media print{' +
+				'body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}' +
+				'table,.signature-section{page-break-inside:avoid;}' +
+				'}' +
+			'</style>' +
+		'</head>' +
+		'<body>' +
+			'<div class="act-container">' +
+				'<h2 class="act-title">Акт приема-передачи отправлений № ' + actNumber + ' от ' + formattedDate + '</h2>' +
+				'<div class="info-row"><span class="info-label" style="width:50mm;">Заказчик:</span> ' + CUSTOMER + '</div>' +
+				'<div class="info-row"><span class="info-label" style="width:50mm;">Отправитель:</span> ' + sender + '</div>' +
+				'<div class="info-row"><span class="info-label" style="width:50mm;">Исполнитель (Субподрядчик):</span> ' + executor + '</div>' +
+				'<div class="content-text">' +
+					'Настоящий акт составлен о том, что в указанную выше дату (дата приема Отправления) Отправитель передал, а Исполнитель (субподрядчик) принял следующие Грузоместа, подлежащие передаче Получателю:' +
+				'</div>' +
+				'<table>' +
+					'<thead>' +
+						'<tr class="header-row"><th colspan="1" style="width:20mm">Ячейка</th><th colspan="4">DROP</th></tr>' +
+						'<tr class="subheader-row">' +
+							'<th>№ п/п</th>' +
+							'<th style="width:40mm;">Код грузоместа</th>' +
+							'<th>№ Отправления в системе заказчика</th>' +
+							'<th>№ Отправления в системе Исполнителя (Субподрядчика)</th>' +
+							'<th>Объявленная ценность заказа, руб.</th>' +
+						'</tr>' +
+					'</thead>' +
+					'<tbody>' +
+						scannedItems.map(function(item, index) {
+							return '<tr><td>' + (index + 1) + '</td><td>' + item.code + '</td><td>' + item.customerSystem + '</td><td>' + item.executorSystem + '</td><td>' + item.declaredValue + '</td></tr>';
+						}).join('') +
+						'<tr class="total-row">' +
+							'<td>Итого</td>' +
+							'<td>' + scannedItems.length + '</td>' +
+							'<td>' + scannedItems.length + '</td>' +
+							'<td>' + scannedItems.length + '</td>' +
+							'<td>' + scannedItems.reduce(function(sum, item) { return sum + parseFloat(item.declaredValue); }, 0).toFixed(2) + '</td>' +
+						'</tr>' +
+					'</tbody>' +
+				'</table>' +
+				'<div class="signature-section">' +
+					'<div class="signature-box">' +
+						'<p>Отправления передал (Отправитель):</p>' +
+						'<div class="signature-line"></div>' +
+						'<p>(Подпись) / (Расшифровка)</p>' +
+					'</div>' +
+					'<div class="signature-box">' +
+						'<p>Отправления принял Исполнитель (Субподрядчик):</p>' +
+						'<div class="signature-line"></div>' +
+						'<p>(Подпись) / (Расшифровка)</p>' +
+					'</div>' +
+				'</div>' +
+				'<div class="date-footer">' + formattedDate + ' ' + timeNow + '</div>' +
+			'</div>' +
+		'</body>' +
+	'</html>';
+				const pdfWindow = window.open('', '_blank');
+				pdfWindow.document.open();
+				pdfWindow.document.write(pdfContent);
+				pdfWindow.document.close();
+				pdfWindow.addEventListener('load', () => {
+					setTimeout(() => {
+						if (typeof pdfWindow.print === 'function') {
+							pdfWindow.print();
+						}
+					}, 100);
+				});
+				const successEl = document.getElementById('successMessage');
+				successEl.classList.remove('hidden');
+				setTimeout(() => successEl.classList.add('hidden'), 5000);
+			}
+
+			function generateAct5() {
+				const sender = document.getElementById('sender5').value.trim() || '—';
+				const executor = document.getElementById('executor5').value.trim() || '—';
+				const recipient = document.getElementById('recipient5').value.trim() || '—';
+				const address = document.getElementById('address5').value.trim() || '—';
+				const orderNumber = document.getElementById('orderNumber5').value.trim() || '—';
+				const reasons = {
+					reason1: document.getElementById('reason1').checked,
+					reason2: document.getElementById('reason2').checked,
+					reason3: document.getElementById('reason3').checked,
+					reason4: document.getElementById('reason4').checked,
+					reason5: document.getElementById('reason5').checked,
+				};
+				const packs = {
+					pack1: document.getElementById('pack1').checked,
+					pack2: document.getElementById('pack2').checked,
+					pack3: document.getElementById('pack3').checked,
+					pack4: document.getElementById('pack4').checked,
+					pack5: document.getElementById('pack5').checked,
+					packOtherCheck: document.getElementById('packOtherCheck').checked,
+					packOther: document.getElementById('packOther').value.trim() || '',
+				};
+				const marks = {
+					mark1: document.getElementById('mark1').checked,
+					mark2: document.getElementById('mark2').checked,
+					mark3: document.getElementById('mark3').checked,
+					mark4: document.getElementById('mark4').checked,
+					mark5: document.getElementById('mark5').checked,
+				};
+				const damages = {
+					damage1: document.getElementById('damage1').checked,
+					damage2: document.getElementById('damage2').checked,
+					damage3: document.getElementById('damage3').checked,
+					damage4: document.getElementById('damage4').checked,
+					damage5: document.getElementById('damage5').checked,
+					damageOtherCheck: document.getElementById('damageOtherCheck').checked,
+					damageOther: document.getElementById('damageOther').value.trim() || '',
+				};
+				const additionalInfo = (document.getElementById('additionalInfo5').value || '').replace(/\r?\n/g, '<br>') || '—';
+				const executorName = document.getElementById('executorName5').value.trim() || '—';
+				const executorPosition = document.getElementById('executorPosition5').value.trim() || '—';
+
+				 if (!sender || !executor || !recipient || !address || !orderNumber ||
+					 (!reasons.reason1 && !reasons.reason2 && !reasons.reason3 && !reasons.reason4 && !reasons.reason5) ||
+					 (!packs.pack1 && !packs.pack2 && !packs.pack3 && !packs.pack4 && !packs.pack5 && !packs.packOtherCheck) ||
+					 !executorName) {
+					 ym(105289488,'reachGoal','ACT_EMPTY')
+					 showError("Акт пустой", "Заполните все обязательные поля и выберите хотя бы по одному варианту в блоках «Причина составления» и «Тип упаковки».");
+					 return;
+				 }
+				 
+				ym(105289488,'reachGoal','GENERATE_ACT_5')
+				const now = new Date();
+				const day = String(now.getDate()).padStart(2, '0');
+				const month = String(now.getMonth() + 1).padStart(2, '0');
+				const year = now.getFullYear();
+				const hours = String(now.getHours()).padStart(2, '0');
+				const minutes = String(now.getMinutes()).padStart(2, '0');
+				const seconds = String(now.getSeconds()).padStart(2, '0');
+				const formattedDateTime = `${day}.${month}.${year} ${hours}:${minutes}`;
+
+				const htmlContent = `
+	<!DOCTYPE html>
+	<html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+		<head>
+			<title>Акт №5</title>
+			<meta http-equiv=Content-Type content="text/html; charset=windows-1251">
+			<meta name=ProgId content=Excel.Sheet>
+			<style>
+				@page {
+					margin: 0.75in 0.7in 0.75in 0.7in;
+				}
+				body {
+					font-family: Arial, "Times New Roman", Times, serif;
+					margin: 0; padding: 0;
+					color: black;
+					line-height: 1.2;
+					font-size: 10pt;
+					align-items: center;
+
+				}
+				.act-container {
+					max-width: 800px;
+					margin: 0 auto;
+					padding: 0 10px;
+				}
+				table {
+					border-collapse: collapse;
+					table-layout: fixed;
+					width: 100%;
+				}
+				td {
+					padding: 0;
+					border: none;
+					background: transparent;
+				}
+				.label-top-left {
+					vertical-align: top !important;
+					text-align: left !important;
+					padding-left: 0 !important;
+				}
+				.checkbox-label-mid-left {
+					vertical-align: middle !important;
+					text-align: left !important;
+					padding-left: 15px !important;
+				}
+				.icon-desc-top-center {
+					vertical-align: top !important;
+					text-align: center !important;
+					padding: 0 !important;
+					line-height: 1.2;
+				}
+				.xl69 {
+					padding: 2px 4px 2px 2px !important;
+					vertical-align: middle !important;
+					width: 20pt;
+				}
+				.styled-checkbox {
+					appearance: none;
+					-webkit-appearance: none;
+					-moz-appearance: none;
+					width: 25px;
+					height: 25px;
+					border: 1px solid #000;
+					background-color: #fff;
+					position: relative;
+					display: inline-block;
+					margin: 0;
+					vertical-align: middle;
+				}
+				.styled-checkbox:checked {
+					background-color: #fff;
+					border: 1px solid #000;
+				}
+				.styled-checkbox:checked::after {
+					content: "✓";
+					position: absolute;
+					top: 50%;
+					left: 50%;
+					transform: translate(-50%, -50%);
+					font-size: 18px;
+					color: #000;
+					font-weight: bold;
+				}
+				.icon-cell {
+					text-align: center;
+					font-size: 14pt;
+					line-height: 1;
+				}
+				.signature-line {
+					border-top: 1px solid #000;
+					margin-top: 0px;
+					padding-top: 6px;
+					max-height: 0px;
+				}
+				.signature-label {
+					display: block;
+					text-align: center;
+					vertical-align:top;
+					font-size: 9pt;
+					margin-top: 4px;
+				}
+			</style>
+		</head>
+		<body>
+			<div class="act-container">
+				<table border=0 cellpadding=0 cellspacing=0 width=588 style='border-collapse:collapse;table-layout:fixed;width:441pt'>
+				<col width=20 span=7>
+				<col width=48>
+				<col width=20 span=20>
+					<!-- Шапка -->
+					<h2 style='text-align:center; padding:0;'>Акт №5<br>&nbsp;об обнаружении повреждений/недостатков отправления</h2>
+					<tr height=20><td colspan=28></td></tr>
+					<td colspan=7 height=25 style='font-weight: bold;'>Дата и время:</td>
+					<td colspan=21>${formattedDateTime}</td>
+					<tr height=19>
+						<td colspan=7 height=30 style='font-weight: bold;'>Отправитель:</td>
+						<td colspan=21>${sender}</td>
+					</tr>
+					<tr height=19>
+						<td colspan=7 height=30 style='font-weight: bold;'>Исполнитель:</td>
+						<td colspan=21>${executor}</td>
+					</tr>
+					<tr height=19>
+						<td colspan=7 height=30 style='font-weight: bold;'>Получатель:</td>
+						<td colspan=21>${recipient}</td>
+					</tr>
+					<tr height=19>
+						<td colspan=7 height=30 style='font-weight: bold;'>Адрес ПВЗ:</td>
+						<td colspan=21>${address}</td>
+					</tr>
+					<tr height=19>
+						<td colspan=7 height=30 style='font-weight: bold;'>Номер заказа:</td>
+						<td colspan=21>${orderNumber}</td>
+					</tr>
+					<tr height=30><td colspan=28></td></tr>
+
+					<!-- Причина составления -->
+					<tr height=19 style="max-width: 100px; min-width: 100px;">
+						<td colspan=8 rowspan=3 height=57 class="label-top-left" style='height:43.2pt; font-weight: bold;'>Причина составления:</td>
+						<td class=xl69><input type="checkbox" class="styled-checkbox"${reasons.reason1 ? ' checked' : ''}></td>
+						<td colspan=9 class="checkbox-label-mid-left">повреждение вложения</td>
+						<td class=xl69><input type="checkbox" class="styled-checkbox"${reasons.reason2 ? ' checked' : ''}></td>
+						<td colspan=9 class="checkbox-label-mid-left">повреждение упаковки</td>
+					</tr>
+					<tr height=19>
+						<td height=19 class=xl69><input type="checkbox" class="styled-checkbox"${reasons.reason3 ? ' checked' : ''}></td>
+						<td colspan=9 class="checkbox-label-mid-left">несоответствие вложения</td>
+						<td class=xl69><input type="checkbox" class="styled-checkbox"${reasons.reason4 ? ' checked' : ''}></td>
+						<td colspan=9 class="checkbox-label-mid-left">недостача вложения</td>
+					</tr>
+					<tr height=19>
+						<td height=19 class=xl69><input type="checkbox" class="styled-checkbox"${reasons.reason5 ? ' checked' : ''}></td>
+						<td colspan=19 class="checkbox-label-mid-left">наличие стороннего/фирменного скотча Исполнителя</td>
+					</tr>
+					<tr height=10><td colspan=28 height=10></td></tr>
+
+					<!-- Тип упаковки -->
+					<tr height=19>
+						<td colspan=8 rowspan=3 height=57 class="label-top-left" style='height:43.2pt; font-weight: bold;'>Тип упаковки:</td>
+						<td class=xl69><input type="checkbox" class="styled-checkbox"${packs.pack1 ? ' checked' : ''}></td>
+						<td colspan=9 class="checkbox-label-mid-left">картонный короб</td>
+						<td class=xl69><input type="checkbox" class="styled-checkbox"${packs.pack4 ? ' checked' : ''}></td>
+						<td colspan=9 class="checkbox-label-mid-left">мешок</td>
+					</tr>
+					<tr height=19>
+						<td height=19 class=xl69><input type="checkbox" class="styled-checkbox"${packs.pack3 ? ' checked' : ''}></td>
+						<td colspan=9 class="checkbox-label-mid-left">деревянный ящик</td>
+						<td class=xl69><input type="checkbox" class="styled-checkbox"${packs.pack5 ? ' checked' : ''}></td>
+						<td colspan=9 class="checkbox-label-mid-left">стретч-пленка</td>
+					</tr>
+					<tr height=19>
+						<td height=19 class=xl69><input type="checkbox" class="styled-checkbox"${packs.pack2 ? ' checked' : ''}></td>
+						<td colspan=9 class="checkbox-label-mid-left">пакет</td>
+						<td class=xl69><input type="checkbox" class="styled-checkbox"${packs.packOtherCheck ? ' checked' : ''}></td>
+						<td colspan=9 class="checkbox-label-mid-left">${packs.packOther ? `другое: ${packs.packOther}` : 'другое (укажите):'}</td>
+					</tr>
+					<tr height=10><td colspan=28 height=10></td></tr>
+
+					<!-- Маркировка -->
+					<tr height=19>
+						<td colspan=8 rowspan=3 height=57 class="label-top-left" style='height:43.2pt; font-weight: bold;'>Маркировка на упаковке:</td>
+						<td class=xl69><input type="checkbox" class="styled-checkbox"${marks.mark1 ? ' checked' : ''}></td>
+						<td colspan=3 class="icon-cell">↑↑</td>
+						<td class=xl69><input type="checkbox" class="styled-checkbox"${marks.mark2 ? ' checked' : ''}></td>
+						<td colspan=3 class="icon-cell">🍷</td>
+						<td class=xl69><input type="checkbox" class="styled-checkbox"${marks.mark3 ? ' checked' : ''}></td>
+						<td colspan=3 class="icon-cell">☂</td>
+						<td class=xl69><input type="checkbox" class="styled-checkbox"${marks.mark4 ? ' checked' : ''}></td>
+						<td colspan=3 class="icon-cell">⬆️</td>
+						<td class=xl69><input type="checkbox" class="styled-checkbox"${marks.mark5 ? ' checked' : ''}></td>
+						<td colspan=3 class="icon-cell">🔄</td>
+					</tr>
+					<tr height=19>
+						<td colspan=4 rowspan=2 class="icon-desc-top-center">хранить вертикально</td>
+						<td colspan=4 rowspan=2 class="icon-desc-top-center">хрупкий<br>&nbsp;товар</td>
+						<td colspan=4 rowspan=2 class="icon-desc-top-center">беречь от влаги</td>
+						<td colspan=4 rowspan=2 class="icon-desc-top-center">не ставить<br>сверху другие</td>
+						<td colspan=4 rowspan=2 class="icon-desc-top-center">не кантовать</td>
+					</tr>
+					<tr height=19></tr>
+					<tr height=10><td colspan=28 height=10></td></tr>
+
+					<!-- Описание повреждений -->
+					<tr height=19>
+						<td colspan=8 rowspan=3 height=57 class="label-top-left" style='height:43.2pt; font-weight: bold;'>Описание повреждений:</td>
+						<td class=xl69><input type="checkbox" class="styled-checkbox"${damages.damage1 ? ' checked' : ''}></td>
+						<td colspan=9 class="checkbox-label-mid-left">деформация упаковки</td>
+						<td class=xl69><input type="checkbox" class="styled-checkbox"${damages.damage4 ? ' checked' : ''}></td>
+						<td colspan=9 class="checkbox-label-mid-left">намокание/промокание</td>
+					</tr>
+					<tr height=19>
+						<td height=19 class=xl69><input type="checkbox" class="styled-checkbox"${damages.damage2 ? ' checked' : ''}></td>
+						<td colspan=9 class="checkbox-label-mid-left">наличие доступа к вложению</td>
+						<td class=xl69><input type="checkbox" class="styled-checkbox"${damages.damage5 ? ' checked' : ''}></td>
+						<td colspan=9 class="checkbox-label-mid-left">расхождение в весе</td>
+					</tr>
+					<tr height=19>
+						<td height=19 class=xl69><input type="checkbox" class="styled-checkbox"${damages.damage3 ? ' checked' : ''}></td>
+						<td colspan=9 class="checkbox-label-mid-left">вмятины/замятия на упаковке</td>
+						<td class=xl69><input type="checkbox" class="styled-checkbox"${damages.damageOtherCheck ? ' checked' : ''}></td>
+						<td colspan=9 class="checkbox-label-mid-left">${damages.damageOther ? `другое: ${damages.damageOther}` : 'другое (укажите):'}</td>
+					</tr>
+					<tr height=10><td colspan=28 height=10></td></tr>
+
+					<!-- Доп. сведения -->
+					<tr height=30>
+						<td colspan=8 height=19 class="label-top-left" style='font-weight: bold;'>Дополнительные сведения:</td>
+						<td colspan=20 style='vertical-align:top;' style='text-align:left;'>${additionalInfo}</td>
+					</tr>
+					<tr height=30><td colspan=28 height=30></td></tr>
+
+					<!-- Подвал -->
+					<tr height=19>
+						<td colspan=28 rowspan=2 height=38 style='height:28.8pt;line-height:1.3'>
+							Сведения, указанные в настоящем акте, соответствуют действительности.<br>
+							Настоящий акт составлен в 3-х экземплярах в присутствии следующих лиц:
+						</td>
+					</tr>
+					<tr height=19></tr>
+					<tr height=20><td colspan=28 height=20></td></tr>
+
+					<!-- Подписи -->
+					<tr height=19>
+						<td colspan=5 rowspan=2 height=38 class="label-top-left" style='height:28.8pt; font-weight: bold;'>Исполнитель:</td>
+						<td colspan=7 style='vertical-align:top; text-align: center;'>${executorName}<br><div class="signature-line"></div><span class="signature-label">Фамилия И.О.</span></td>
+						<td rowspan=2></td>
+						<td colspan=7 style='vertical-align:top;'><br><div class="signature-line"></div><span class="signature-label">подпись, печать</span></td>
+						<td rowspan=2></td>
+						<td colspan=7 style='vertical-align:top; text-align: center;'>${executorPosition}<br><div class="signature-line"></div><span class="signature-label">должность</span></td>
+					</tr>
+					<tr height=19>
+						<td colspan=7 height=19></td>
+						<td colspan=7></td>
+						<td colspan=7></td>
+					</tr>
+					<tr height=19>
+						<td colspan=5 rowspan=2 height=38 class="label-top-left" style='height:28.8pt; font-weight: bold;'>Получатель:</td>
+						<td colspan=7 style='vertical-align:top; text-align: center;'>${recipient}<br><div class="signature-line"></div><span class="signature-label">Фамилия И.О.</span></td>
+						<td rowspan=2></td>
+						<td colspan=7 style='vertical-align:top;'><br><div class="signature-line"></div><span class="signature-label">подпись</span></td>
+						<td colspan=8 rowspan=2></td>
+					</tr>
+					<tr height=19>
+						<td colspan=7 height=19></td>
+						<td colspan=7></td>
+					</tr>
+					<tr height=20><td colspan=28 height=20></td></tr>
+				</table>
+			</div>
+		</body>
+	</html>`;
+
+				const win = window.open('', '_blank');
+				win.document.open();
+				win.document.write(htmlContent);
+				win.document.close();
+
+				win.addEventListener('load', () => {setTimeout(() => {if (win.print) win.print();}, 500);});
+
+				document.getElementById('successMessage').classList.remove('hidden');
+				setTimeout(() => document.getElementById('successMessage').classList.add('hidden'), 5000);
+			}
+
+			document.addEventListener('DOMContentLoaded', () => {document.getElementById('scanInput').focus();});
+			document.getElementById('scanInput').addEventListener('keypress', e => {if (e.key === 'Enter') addScan();});
+			document.querySelectorAll('.menu-item').forEach(item => {
+				item.addEventListener('click', () => {
+					document.querySelectorAll('.menu-item').forEach(mi => mi.classList.remove('active'));
+					item.classList.add('active');
+					const toolId = item.getAttribute('data-tool');
+					document.querySelectorAll('.tool-content').forEach(tc => tc.classList.remove('active'));
+					document.getElementById(`${toolId}-content`).classList.add('active');
+					const title = item.getAttribute('data-title') || 'Инструмент';
+					document.querySelector('.page-title').textContent = title;
+				});
+			});
+			document.addEventListener('DOMContentLoaded', () => {
+				const tooltip = document.getElementById('custom-tooltip');
+				document.querySelectorAll('[data-tooltip]').forEach(button => {
+					const text = button.getAttribute('data-tooltip');
+					button.addEventListener('mouseenter', (e) => {tooltip.textContent = text;tooltip.style.opacity = '1';});
+					button.addEventListener('mousemove', (e) => {
+						const rect = tooltip.getBoundingClientRect();
+						const tooltipWidth = rect.width;
+						const tooltipHeight = rect.height;
+						let left = e.pageX + 10;
+						let top = e.pageY + 10;
+						if (left + tooltipWidth > window.innerWidth) {
+							left = e.pageX - tooltipWidth - 10;
+						}
+						if (top + tooltipHeight > window.innerHeight) {
+							top = e.pageY - tooltipHeight - 10;
+						}
+						left = Math.max(5, left);
+						top = Math.max(5, top);
+						tooltip.style.left = left + 'px';
+						tooltip.style.top = top + 'px';
+					});
+					button.addEventListener('mouseleave', () => {tooltip.style.opacity = '0';});
+				});
+			});
+
+			function checkForUpdate() {
+				const versionUrl = 'https://raw.githubusercontent.com/offlexpl/pvz-instruments/refs/heads/main/version.json';
+
+				fetch(versionUrl)
+					.then(res => {
+						if (!res.ok) throw new Error('Не удалось загрузить версию');
+						return res.json();
+					})
+					.then(data => {
+						if (data.version && data.version !== currentVersion) {
+							// Версия новее — показываем уведомление
+							const updateEl = document.createElement('div');
+							updateEl.id = 'updateNotification';
+							updateEl.style.cssText = `
+								position: fixed;
+								bottom: 20px;
+								right: 20px;
+								background: #d4edda;
+								color: #155724;
+								padding: 12px;
+								border-radius: 8px;
+								border: 1px solid #c3e6cb;
+								box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+								z-index: 10001;
+								display: flex;
+								align-items: right;
+								gap: 10px;
+								max-width: 90%;
+							`;
+							updateEl.innerHTML = `
+								<div style="text-shadow: 0 0 2px rgba(0,0,0,0.3);">🔧⠀Доступна новая версия v${data.version}!</div>
+								<button onclick="window.open('${data.downloadUrl}', '_blank')" 
+										style="background:#155724;color:white;border:none;border-radius:4px;padding:4px 10px;cursor:pointer;font-weight:bold;">
+									Скачать
+								</button>
+								<button onclick="this.parentElement.remove()" 
+										style="background:transparent;border:none;color:#155724;cursor:pointer;font-size:18px;">×</button>
+							`;
+							document.body.appendChild(updateEl);
+						}
+					})
+					.catch(err => {
+						console.warn('Не удалось проверить обновления:', err);
+					});
+			}
+
+			// Запуск после загрузки DOM
+			document.addEventListener('DOMContentLoaded', checkForUpdate);
+			
+			<!-- Yandex.Metrika counter -->
+			(function(m,e,t,r,i,k,a){
+					m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+					m[i].l=1*new Date();
+					for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+					k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+				})(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=105289488', 'ym');
+
+				ym(105289488, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
+			
+			function showPrivacyPolicy() {
+				document.getElementById('privacy-policy-overlay').style.display = 'block';
+			}
+
+			function hidePrivacyPolicy() {
+				ym(105289488,'reachGoal','PRIVACY_CLOSED')
+				document.getElementById('privacy-policy-overlay').style.display = 'none';
+			}
+			
+			function showTerms() {
+				document.getElementById('terms-overlay').style.display = 'block';
+			}
+
+			function hideTerms() {
+				ym(105289488,'reachGoal','TERMS_CLOSED')
+				document.getElementById('terms-overlay').style.display = 'none';
+			}
+		</script>
+	</body>
+
+</html>
+
+
+

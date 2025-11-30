@@ -10,6 +10,7 @@
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>Инструменты для ПВЗ</title>
+		<script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/xlsx.full.min.js"></script>
 		<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text x='50' y='75' font-size='80' fill='%23f1c40f' text-anchor='middle'>🔧</text></svg>" type="image/svg+xml">
 		<style>
 			:root {
@@ -496,10 +497,10 @@
 					<text>📄</text>
 					<span>Генератор Акта 5</span>
 				</div>
-	<!--			<div class="menu-item" data-tool="services-act-analysis" data-title="Анализ акта услуг">
+				<div class="menu-item" data-tool="services-act-analysis" data-title="Анализ акта услуг">
 					<text>🧮</text>
 					<span>Анализ акта услуг</span> 
-				</div>-->
+				</div>
 			</div>
 		</div>
 <!-- Главная страница -->
@@ -631,7 +632,15 @@
 							Если загрузить .xlsx анализ за прошлые месяцы, автоматически добавит новые данные 
 							и выдаст полный файл со всеми данными и готовой таблицей.</text>
 							<div class="form-section">
-								<div class="form-grid">
+								<div class="form-section">
+									<div class="form-grid">
+										<label for="actFileInput">Загрузите акт:</label>
+										<button id="actFileBtn" class="generate-button">📁 Выбрать</button>
+										<input type="file" id="actFileInput" accept=".xlsx" style="display: none;" />
+									</div>
+								</div>
+								<div id="actAnalysisResult" class="tool-container" style="display: none; margin-top: 20px;">
+									<!-- Результаты будут вставлены сюда -->
 								</div>
 							</div>
 						</div>
@@ -785,7 +794,7 @@
 			</div>
 		</div>
 		<script>
-				const currentVersion = "1.0.0";
+				const currentVersion = "1.1.0";
 			document.addEventListener('DOMContentLoaded', function() {
 				const versionDisplayElement = document.getElementById('version-display');
 				if (versionDisplayElement) {
@@ -1489,6 +1498,281 @@
 				ym(105289488,'reachGoal','TERMS_CLOSED')
 				document.getElementById('terms-overlay').style.display = 'none';
 			}
+			
+			// =============== Анализ акта услуг ===============
+			document.getElementById('actFileBtn').addEventListener('click', () => {
+				document.getElementById('actFileInput').click();
+			});
+
+			function drawChart(pvzName, dailySums, lastDay, maxAxisY) {
+				const canvasId = `chart-${pvzName.replace(/\s+/g, '_')}`;
+				const canvas = document.getElementById(canvasId);
+				if (!canvas) return;
+
+				const ctx = canvas.getContext('2d');
+				const width = canvas.width || 600;
+				const height = canvas.height || 200;
+
+				canvas.width = width;
+				canvas.height = height;
+
+				const pad = { top: 10, right: 20, bottom: 30, left: 40 };
+				const plotW = width - pad.left - pad.right;
+				const plotH = height - pad.top - pad.bottom;
+
+				const stepY = 500;
+				const numSteps = Math.ceil(maxAxisY / stepY) || 1;
+				const scaleY = plotH / (numSteps * stepY);
+
+				ctx.clearRect(0, 0, width, height);
+
+				ctx.strokeStyle = '#eee';
+				ctx.fillStyle = '#888';
+				ctx.font = '10px Arial';
+				for (let i = 0; i <= numSteps; i++) {
+					const y = pad.top + plotH - i * stepY * scaleY;
+					ctx.beginPath();
+					ctx.moveTo(pad.left, y);
+					ctx.lineTo(width - pad.right, y);
+					ctx.stroke();
+
+					const label = (i * stepY).toString();
+					ctx.fillText(label, pad.left - ctx.measureText(label).width - 5, y + 4);
+				}
+
+				ctx.strokeStyle = '#000';
+				ctx.beginPath();
+				ctx.moveTo(pad.left, pad.top + plotH);
+				ctx.lineTo(width - pad.right, pad.top + plotH);
+				ctx.stroke();
+
+				const barW = Math.max(4, plotW / lastDay * 0.8);
+				const gap = (plotW - barW * lastDay) / (lastDay + 1);
+
+				for (let day = 1; day <= lastDay; day++) {
+					const sum = dailySums[day] || 0;
+					const barH = sum * scaleY;
+					const x = pad.left + gap + (day - 1) * (barW + gap);
+					const y = pad.top + plotH - barH;
+
+					ctx.fillStyle = '#4CAF50';
+					ctx.fillRect(x, y, barW, barH);
+
+					ctx.fillStyle = '#555';
+					ctx.textAlign = 'center';
+					ctx.fillText(day.toString(), x + barW / 2, pad.top + plotH + 15);
+					ctx.textAlign = 'left';
+				}
+			}
+
+			function showError(title, message) {
+				const errorEl = document.getElementById('errorMessage');
+				errorEl.innerHTML = `
+					<div>⚠️</div>
+					<div class="error-message-text">
+						<b>${title}</b><br><span class="error-description">${message}</span>
+					</div>
+				`;
+				errorEl.classList.remove('hidden');
+				setTimeout(() => errorEl.classList.add('hidden'), 5000);
+			}
+
+			document.getElementById('actFileInput').addEventListener('change', function(e) {
+				const file = e.target.files[0];
+				if (!file) return;
+
+				const reader = new FileReader();
+				reader.onload = function(e) {
+					try {
+						const data = new Uint8Array(e.target.result);
+						const workbook = XLSX.read(data, { type: 'array' });
+						const sheetName = workbook.SheetNames.includes('Транзакции') ? 'Транзакции' : null;
+
+						if (!sheetName) {
+							showError('Ошибка структуры файла', 'В файле отсутствует лист «Транзакции».');
+							return;
+						}
+
+						const ws = workbook.Sheets[sheetName];
+						const jsonData = XLSX.utils.sheet_to_json(ws, { header: 1 });
+
+						if (!jsonData || jsonData.length < 2) {
+							showError('Пустой лист', 'Лист «Транзакции» не содержит данных.');
+							return;
+						}
+
+						const headers = jsonData[0];
+						const colIndex = {};
+						headers.forEach((h, i) => {
+							if (typeof h === 'string') {
+								h = h.trim();
+								if (h === 'Название ПВЗ') colIndex.pvz = i;
+								else if (h === 'Услуга') colIndex.service = i;
+								else if (h === 'Время (мск)') colIndex.time = i;
+								else if (h === 'Стоимость заказа/товара за 1шт без НДС, руб') colIndex.costNoVAT = i;
+								else if (h === 'Стоимость услуги, руб') colIndex.serviceCost = i;
+							}
+						});
+
+						if (colIndex.pvz === undefined || colIndex.service === undefined || 
+							colIndex.time === undefined || colIndex.costNoVAT === undefined || 
+							colIndex.serviceCost === undefined) {
+							showError('Ошибка структуры файла', 'Не найдены необходимые столбцы: B, C, D, H, K.');
+							return;
+						}
+
+						const rows = jsonData.slice(1).filter(r => Array.isArray(r) && r.length > 0);
+						const filename = file.name;
+						const match = filename.match(/report for (\d{4})-(\d{2})-(\d{2})\.xlsx/i);
+						if (!match) {
+							showError('Некорректное имя файла', 'Ожидается формат: report for YYYY-MM-DD.xlsx');
+							return;
+						}
+						const lastDay = parseInt(match[3], 10);
+
+						const pvzMap = {};
+						rows.forEach(row => {
+							const pvzName = String(row[colIndex.pvz] || '').trim();
+							if (!pvzName) return;
+
+							if (!pvzMap[pvzName]) {
+								pvzMap[pvzName] = {
+									name: pvzName,
+									rows: [],
+									serviceCounts: {},
+									serviceSums: {},
+									dailySums: {},
+									totalServiceSum: 0,
+									turnover: 0
+								};
+							}
+
+							const rec = {
+								service: String(row[colIndex.service] || '').trim(),
+								timeRaw: row[colIndex.time],
+								costNoVAT: parseFloat(row[colIndex.costNoVAT]) || 0,
+								serviceCost: parseFloat(row[colIndex.serviceCost]) || 0
+							};
+
+							pvzMap[pvzName].rows.push(rec);
+
+							if (rec.service === 'Поайтемное вознаграждение за выдачу заказа') {
+								pvzMap[pvzName].turnover += rec.costNoVAT;
+							}
+
+							pvzMap[pvzName].serviceCounts[rec.service] = (pvzMap[pvzName].serviceCounts[rec.service] || 0) + 1;
+							pvzMap[pvzName].serviceSums[rec.service] = (pvzMap[pvzName].serviceSums[rec.service] || 0) + rec.serviceCost;
+							pvzMap[pvzName].totalServiceSum += rec.serviceCost;
+
+							if (typeof rec.timeRaw === 'string') {
+								const datePart = rec.timeRaw.split(' ')[0];
+								const dayMatch = datePart.match(/\d{4}-\d{2}-(\d{2})/);
+								if (dayMatch) {
+									const day = parseInt(dayMatch[1], 10);
+									pvzMap[pvzName].dailySums[day] = (pvzMap[pvzName].dailySums[day] || 0) + rec.serviceCost;
+								}
+							}
+						});
+
+						const container = document.getElementById('actAnalysisResult');
+						let html = '';
+
+						for (const pvzName in pvzMap) {
+							const pvz = pvzMap[pvzName];
+							const days = Object.keys(pvz.dailySums).map(Number).sort((a, b) => a - b);
+							const maxDaySum = Math.max(...days.map(d => pvz.dailySums[d]), 0);
+							const maxAxisY = maxDaySum > 0 ? Math.ceil(maxDaySum / 500) * 500 : 500;
+
+							html += `
+								<details class="pvz-accordion" style="margin-bottom: 15px; border: 1px solid #eee; border-radius: 8px;">
+									<summary style="font-size: 20px; font-weight: bold; cursor: pointer; padding: 12px; background: #f5f5f5; border-radius: 6px;">
+										${pvz.name}
+									</summary>
+									<div style="padding: 15px; background: #fafafa; border-radius: 6px; margin-top: 10px;">
+										<div style="font-size: 18px; margin-bottom: 12px;">
+											<strong>Оборот:</strong> ${pvz.turnover.toFixed(2)} ₽
+										</div>
+
+										<div style="margin: 15px 0;">
+											<label style="margin-right: 12px;"><strong>День:</strong></label>
+											<button class="day-btn active" data-pvz="${pvzName}" data-day="all">Все дни</button>
+											${Array.from({ length: lastDay }, (_, i) => i + 1)
+								.map(d => `<button class="day-btn" data-pvz="${pvzName}" data-day="${d}">${d}</button>`)
+								.join('')}
+										</div>
+
+										<div class="day-total" data-pvz="${pvzName}" style="font-size: 18px; margin-bottom: 15px; background: #e9f7ef; padding: 8px 12px; border-radius: 4px; display: none;">
+											<strong>Сумма за день:</strong> <span class="day-total-value">0.00</span> ₽
+										</div>
+
+										<canvas id="chart-${pvzName.replace(/\s+/g, '_')}" width="600" height="200" style="border: 1px solid #eee; background: white; margin: 10px 0;"></canvas>
+
+										<div style="margin-top: 20px;">
+											<h4 style="margin-bottom: 10px;">Подитоги по услугам:</h4>
+											<table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+												<thead>
+													<tr style="background: #2c3e50; color: white;">
+														<th style="padding: 8px; text-align: left;">Услуга</th>
+														<th style="padding: 8px; text-align: right;">Количество</th>
+														<th style="padding: 8px; text-align: right;">Сумма (руб)</th>
+													</tr>
+												</thead>
+												<tbody>
+													${Object.entries(pvz.serviceCounts).map(([svc, cnt]) => `
+														<tr style="border-bottom: 1px solid #eee;">
+															<td style="padding: 8px;">${svc}</td>
+															<td style="padding: 8px; text-align: right;">${cnt}</td>
+															<td style="padding: 8px; text-align: right;">${(pvz.serviceSums[svc] || 0).toFixed(2)}</td>
+														</tr>
+													`).join('')}
+													<tr style="font-weight: bold; background: #f9f9f9;">
+														<td style="padding: 8px;">Итого</td>
+														<td style="padding: 8px; text-align: right;">${Object.values(pvz.serviceCounts).reduce((s, v) => s + v, 0)}</td>
+														<td style="padding: 8px; text-align: right;">${pvz.totalServiceSum.toFixed(2)}</td>
+													</tr>
+												</tbody>
+											</table>
+										</div>
+									</div>
+								</details>
+							`;
+
+							setTimeout(() => drawChart(pvzName, pvz.dailySums, lastDay, maxAxisY), 50);
+						}
+
+						container.innerHTML = html;
+						container.style.display = 'block';
+
+						document.querySelectorAll('.day-btn').forEach(btn => {
+							btn.addEventListener('click', function() {
+								const pvzName = this.getAttribute('data-pvz');
+								const day = this.getAttribute('data-day');
+								const allBtns = document.querySelectorAll(`.day-btn[data-pvz="${pvzName}"]`);
+								allBtns.forEach(b => b.classList.remove('active'));
+								this.classList.add('active');
+
+								let total = 0;
+								if (day === 'all') {
+									total = pvzMap[pvzName].totalServiceSum;
+								} else {
+									total = pvzMap[pvzName].dailySums[parseInt(day)] || 0;
+								}
+
+								const totalEl = document.querySelector(`.day-total[data-pvz="${pvzName}"]`);
+								totalEl.querySelector('.day-total-value').textContent = total.toFixed(2);
+								totalEl.style.display = 'block';
+							});
+						});
+
+						document.querySelectorAll('.day-btn[data-day="all"]').forEach(btn => btn.click());
+
+					} catch (err) {
+						console.error(err);
+						showError('Ошибка обработки файла', err.message || 'Неизвестная ошибка');
+					}
+				};
+				reader.readAsArrayBuffer(file);
+			});	
 		</script>
 	</body>
 

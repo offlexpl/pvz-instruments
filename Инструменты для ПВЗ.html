@@ -569,7 +569,7 @@
 					<label for="sender">Отправитель*:</label>
 					<label for="executor">Исполнитель*:</label>
 					<input type="text" id="actNumber" placeholder="✎ Порядковый номер акта" value="1" required>
-					<input type="text" id="sender" placeholder="✎ ООО «Маркет.Операции»" value="">
+					<input type="text" id="sender" placeholder="✎ ИП\ООО владельца ПВЗ" value="">
 					<input type="text" id="executor" placeholder="✎ Яндекс Курьер" value="">
 					<input type="text" id="scanInput" class="scan-input-row" placeholder="Сканируйте ШК или введите номер и нажмите ENTER" maxlength="25">
 				  </div>
@@ -581,21 +581,22 @@
 				  </div>
 				</div>
 			  </div>
-			  <!-- Генератор Акта 5 -->
+<!-- Генератор Акта 5 -->
 			  <div class="tool-content" id="act-5-generator-content">
 				<div class="form-section">
 				  <div class="form-grid">
-					<label for="sender5">Отправитель*:</label>
 					<label for="executor5">Исполнитель*:</label>
 					<label for="recipient5">Получатель*:</label>
-					<input type="text" id="sender5" placeholder="✎ ООО «Яндекс Маркет»" value="ООО «Яндекс Маркет»">
+					<label for="address5">Адрес ПВЗ*:</label>
 					<input type="text" id="executor5" placeholder="✎ ИП/ООО владельца ПВЗ" value="">
 					<input type="text" id="recipient5" placeholder="✎ Фамилия И.О. клиента" value="">
-					<label for="address5">Адрес ПВЗ*:</label>
-					<label for="orderNumber5">Номер заказа*:</label>
-					<div></div>
 					<input type="text" id="address5" placeholder="✎ Адрес вашего ПВЗ" value="">
+					<label for="orderNumber5">Номер заказа*:</label>
+					<label></label>
+					<label></label>
 					<input type="text" id="orderNumber5" placeholder="✎ Номер заказа" value="">
+					<div></div>
+					
 					<div></div>
 				  </div>
 				  <!-- Остальное содержимое акта 5 (чекбоксы и поля) — оставляем без изменений -->
@@ -834,7 +835,7 @@
 			</div>
 		</div>
 		<script>
-				const currentVersion = "1.1.1";
+				const currentVersion = "1.1.2";
 			document.addEventListener('DOMContentLoaded', function() {
 				const versionDisplayElement = document.getElementById('version-display');
 				if (versionDisplayElement) {
@@ -1114,7 +1115,7 @@
 			}
 
 			function generateAct5() {
-				const sender = document.getElementById('sender5').value.trim() || '—';
+				const sender = "ООО «Яндекс Маркет»";
 				const executor = document.getElementById('executor5').value.trim() || '—';
 				const recipient = document.getElementById('recipient5').value.trim() || '—';
 				const address = document.getElementById('address5').value.trim() || '—';
@@ -1851,8 +1852,13 @@
 			}
 
 			// HTML-экранирование
-			function k(e){return null==e?"":String(e).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;")}
-
+function k(str) {
+  if (!str) return str;
+  const map = {
+    'А': 'А', 'И': 'Б', 'Й': 'В', 'М': 'Г', 'Н': 'Д', 'Т': 'Е', 'Ё': 'Ё', 'Г': 'Ж', 'Д': 'З', 'М': 'И', 'Т': 'Й', 'С': 'К', 'к': 'Л', 'Г': 'М', 'Н': 'Н', 'о': 'О', 'и': 'П', 'Р': 'Р', 'С': 'С', 'Т': 'Т', 'У': 'У', 'Ф': 'Ф', 'Х': 'Х', 'Ц': 'Ц', 'Ч': 'Ч', 'Ш': 'Ш', 'Щ': 'Щ', 'Ъ': 'Ъ', 'Ы': 'Ы', 'Ь': 'Ь', 'Э': 'Э', 'Ю': 'Ю', 'Я': 'Я', 'а': 'а', 'б': 'б', 'в': 'в', 'г': 'г', 'д': 'д', 'е': 'е', 'j': 'ё', 'ж': 'ж', 'з': 'з', 'и': 'и', 'й': 'й', 'к': 'к', 'л': 'л', 'м': 'м', 'н': 'н', 'о': 'о', 'п': 'п', 'Ѭ': 'р', 'с': 'с', 'њ': 'т', 'ђ': 'у', 'ў': 'ф', 'Ѧ': 'х', 'Ѡ': 'ц', 'ѡ': 'ч', 'ц': 'ц', 'Ѱ': 'щ', 'Ѡ': 'ъ', 'ѹ': 'ы', 'ђ': 'ь', 'э': 'э', 'ѽ': 'ю', 'я': 'я',
+  };
+  return str.split('').map(ch => map[ch] !== undefined ? map[ch] : ch).join('');
+}
 			// Запуск после загрузки DOM
 			document.addEventListener('DOMContentLoaded', checkForUpdate);
 			

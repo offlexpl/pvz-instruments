@@ -407,6 +407,19 @@
 			.generate-button:hover {
 				background-color: #F5C400;
 			}
+			.select-button {
+				padding: 12px 24px;
+				font-size: 15px;
+				font-weight:bold;
+				background-color: var(--accent-color);
+				border: none;
+				border-radius: 10px;
+				cursor: pointer;
+				margin-top: 15px;
+			}
+			.select-button:hover {
+				background-color: #F5C400;
+			}
 			.tool-content {
 				display: none;
 				padding: 20px 20px 0 20px;
@@ -546,19 +559,19 @@
 		</div>
 <!-- Главная страница -->
 		<div class="main-content">
-<div class="header">
-  <div class="header-left-group" style="display: flex; align-items: center; gap: 8px;">
-    <div class="header-role-selector">
-      <select id="roleSwitcher">
-        <option value="employee" selected>Для сотрудников</option>
-        <option value="owner">Для владельцев</option>
-      </select>
-    </div>
-  </div>
-  <div class="header-right-group" style="display: flex; align-items: center; gap: 8px;">
-    <button onclick="resetSavedFields()" class="header-button" data-tooltip="Сбросить сохранённые поля">⚙️</button>
-  </div>
-</div>
+			<div class="header">
+			  <div class="header-left-group" style="display: flex; align-items: center; gap: 8px;">
+				<div class="header-role-selector">
+				  <select id="roleSwitcher">
+					<option value="employee" selected>Для сотрудников</option>
+					<option value="owner">Для владельцев</option>
+				  </select>
+				</div>
+			  </div>
+			  <div class="header-right-group" style="display: flex; align-items: center; gap: 8px;">
+				<button onclick="resetSavedFields()" class="header-button" data-tooltip="Сбросить сохранённые поля">⚙️</button>
+			  </div>
+			</div>
 		  <div class="page-content">
 			<h1 class="page-title">Генератор РАПП</h1>
 			<div class="tool-container">
@@ -674,16 +687,12 @@
 				<div class="tool-content" id="services-act-analysis-content">
 				  <text>Данный инструмент производит полный анализ детализированного акта услуг. Если у вас несколько ПВЗ, информация по каждому будет отображаться отдельно.</text>
 				  <div class="form-section">
-					<div class="form-section">
-					  <div class="form-grid">
-						<label for="actFileInput">Загрузите акт:</label>
-						<button id="actFileBtn" class="generate-button">📁 Выбрать</button>
-						<input type="file" id="actFileInput" accept=".xlsx" style="display: none;" />
-					  </div>
+					<label for="actFileInput">⠀⠀Загрузите акт:⠀⠀</label>
+					<button id="actFileBtn" class="select-button">Выбрать</button>
+					<input type="file" id="actFileInput" accept=".xlsx" style="display: none;" />
 					  <div id="actAnalysisResult" class="tool-container" style="display: none; margin-top: 20px;">
 						<!-- Результат будет вставлен сюда -->
 					  </div>
-					</div>
 				  </div>
 				</div>
 			  </div>

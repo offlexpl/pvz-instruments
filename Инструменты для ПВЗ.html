@@ -836,7 +836,7 @@
 			</div>
 		</div>
 		<script>
-				const currentVersion = "1.1.3";
+				const currentVersion = "1.1.4";
 			document.addEventListener('DOMContentLoaded', function() {
 				const versionDisplayElement = document.getElementById('version-display');
 				if (versionDisplayElement) {
@@ -1603,8 +1603,14 @@
 				  // Объект с заменами
 				  const replacements = {
 					"иЙД": "ПВЗ",
+					"иѬием Авињо заказа на ПВЗ": "Приём Авито заказа",
+					"ЙознагѬаждение за вѹдаѡђ Авињо заказа": "Выдача Авито заказа",
+					"иѬием С2С заказа на ПВЗ": "Приём С2С заказа",
+					"ЙознагѬаждение за вѹдаѡђ С2С заказа": "Выдача С2С заказа",
+					"ЙознагѬаждение за вѹдаѡђ кѬоссбоѬдеѬного заказа": "Выдача кроссбордерного заказа",
+					"иоайњемное вознагѬаждение за вѹдаѡђ заказа": "Выдача заказа с Маркета",
 					"иѬием": "Приём",
-					"иоайњемное": "Поайтемное",
+					"иѬијм": "Приём",
 					"СлиенњскиѦ": "Клиентских",
 				  };
 
@@ -1761,7 +1767,7 @@ function renderAnalysis(dataByPvz, lastDay, year, month) {
       <div style="margin-top:15px;"><strong>Статистика услуг:</strong></div>
       <ul style="margin-top:8px;padding-left:20px;">
         ${Object.entries(pvzData.serviceCount)
-          .map(([svc, cnt]) => `<li>${k(svc)} была оказана: ${cnt} раз</li>`)
+          .map(([svc, cnt]) => `<li>${k(svc)}: ${cnt} раз</li>`)
           .join('')}
       </ul>
     `;
@@ -1881,6 +1887,7 @@ function renderAnalysis(dataByPvz, lastDay, year, month) {
     dateClearBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       selectedDay = null;
+	  calendarPopup.style.display = 'none';
       updateView();
       dateSelectorBtn.querySelector('span:first-child').textContent = 'Выберите дату';
     });

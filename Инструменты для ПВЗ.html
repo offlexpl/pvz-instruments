@@ -123,8 +123,9 @@
 				border-bottom: 1px solid var(--input-bg);
 				display: flex;
 				align-items: center;
-				justify-content: flex-end;
+				justify-content: space-between;
 				padding-right: 20px;
+				padding-left: 20px;
 			}
 			.header-right-group {
 			  display: flex;
@@ -156,7 +157,6 @@
 			  background: rgba(0, 0, 0, 0);
 			  border-radius: 8px;
 			  cursor: pointer;
-			  margin-right: 795px;
 			}
 			
 			.header-role-selector select {
@@ -546,18 +546,19 @@
 		</div>
 <!-- Главная страница -->
 		<div class="main-content">
-		  <div class="header">
-			<div class="header-role-selector">
-			  <select id="roleSwitcher">
-				<option value="employee" selected>Для сотрудников</option>
-				<option value="owner">Для владельцев</option>
-			  </select>
-			</div>
-			<div class="header-right-group">
-			  <!-- <p>Настройки</p> -->
-			  <button onclick="resetSavedFields()" class="header-button" data-tooltip="Сбросить сохранённые поля">⚙️</button>
-			</div>
-		  </div>
+<div class="header">
+  <div class="header-left-group" style="display: flex; align-items: center; gap: 8px;">
+    <div class="header-role-selector">
+      <select id="roleSwitcher">
+        <option value="employee" selected>Для сотрудников</option>
+        <option value="owner">Для владельцев</option>
+      </select>
+    </div>
+  </div>
+  <div class="header-right-group" style="display: flex; align-items: center; gap: 8px;">
+    <button onclick="resetSavedFields()" class="header-button" data-tooltip="Сбросить сохранённые поля">⚙️</button>
+  </div>
+</div>
 		  <div class="page-content">
 			<h1 class="page-title">Генератор РАПП</h1>
 			<div class="tool-container">

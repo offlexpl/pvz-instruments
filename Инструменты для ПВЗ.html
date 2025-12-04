@@ -845,7 +845,7 @@
 			</div>
 		</div>
 		<script>
-				const currentVersion = "1.1.4";
+				const currentVersion = "1.1.5";
 			document.addEventListener('DOMContentLoaded', function() {
 				const versionDisplayElement = document.getElementById('version-display');
 				if (versionDisplayElement) {
@@ -1585,434 +1585,443 @@
 			  const lastDay = parseInt(lastDayStr, 10);
 
 			  const reader = new FileReader();
-			  reader.onload = function (e) {
-				try {
-				  const data = new Uint8Array(e.target.result);
-				  const wb = XLSX.read(data, { type: 'array', codepage: 1251 });
-				  const sheetName = wb.SheetNames[1]; // Второй лист — "Транзакции"
-				  if (!sheetName) {
-					alert('Второй лист ("Транзакции") не найден.');
-					return;
-				  }
+reader.onload = function (e) {
+  try {
+    const data = new Uint8Array(e.target.result);
+    const wb = XLSX.read(data, { type: 'array', codepage: 1251 });
 
-				  const ws = wb.Sheets[sheetName];
-				  const rows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: true });
-				  if (rows.length < 2) {
-					alert('Недостаточно данных.');
-					return;
-				  }
+    // === 1. Парсим транзакции (лист 1) — чтобы получить список ПВЗ для нормализации ===
+    const transSheetName = wb.SheetNames[1];
+    if (!transSheetName) {
+      alert('Лист "Транзакции" не найден.');
+      return;
+    }
+    const transWs = wb.Sheets[transSheetName];
+    const transRows = XLSX.utils.sheet_to_json(transWs, { header: 1, raw: true });
+    if (transRows.length < 2) {
+      alert('Недостаточно данных в "Транзакциях".');
+      return;
+    }
 
-				  // ✅ ФИКСИРОВАННЫЕ ИНДЕКСЫ:
-				  const PVZ_COL = 1; // B
-				  const SERVICE_COL = 2; // C
-				  const TIME_COL = 3; // D
-				  const ORDER_COST_EX_VAT_COL = 7; // H
-				  const SERVICE_COST_COL = 10; // K
+    // === 2. Константы индексов ===
+    const PVZ_COL = 1;   // B
+    const SERVICE_COL = 2; // C
+    const TIME_COL = 3;  // D
+    const ORDER_COST_EX_VAT_COL = 7; // H
+    const SERVICE_COST_COL = 10;     // K
 
-				  // Объект с заменами
-				  const replacements = {
-					"иЙД": "ПВЗ",
-					"иѬием Авињо заказа на ПВЗ": "Приём Авито заказа",
-					"ЙознагѬаждение за вѹдаѡђ Авињо заказа": "Выдача Авито заказа",
-					"иѬием С2С заказа на ПВЗ": "Приём С2С заказа",
-					"ЙознагѬаждение за вѹдаѡђ С2С заказа": "Выдача С2С заказа",
-					"ЙознагѬаждение за вѹдаѡђ кѬоссбоѬдеѬного заказа": "Выдача кроссбордерного заказа",
-					"иоайњемное вознагѬаждение за вѹдаѡђ заказа": "Выдача заказа с Маркета",
-					"иѬием": "Приём",
-					"иѬијм": "Приём",
-					"СлиенњскиѦ": "Клиентских",
-				  };
+    // === 3. Объект замен и функции ===
+    const replacements = {
+      "иЙД": "ПВЗ",
+      "иѬием Авињо заказа на ПВЗ": "Приём Авито заказа",
+      "ЙознагѬаждение за вѹдаѡђ Авињо заказа": "Выдача Авито заказа",
+      "иѬием С2С заказа на ПВЗ": "Приём С2С заказа",
+      "ЙознагѬаждение за вѹдаѡђ С2С заказа": "Выдача С2С заказа",
+      "ЙознагѬаждение за вѹдаѡђ кѬоссбоѬдеѬного заказа": "Выдача кроссбордерного заказа",
+      "иоайњемное вознагѬаждение за вѹдаѡђ заказа": "Выдача заказа с Маркета",
+      "иѬием заказа идђѰего по xdoc на ПВЗ": "Приём заказа XDOC",
+      "иокђпањеля": "Покупателя",
+      "иѬием": "Приём",
+      "иѬијм": "Приём",
+      "СлиенњскиѦ": "Клиентских",
+    };
 
-				  // Функция для безопасной замены с экранированием
-				  function applyReplacements(str) {
-					if (typeof str !== 'string') return str;
-					let result = str;
-					for (const [searchValue, replaceValue] of Object.entries(replacements)) {
-					  const escapedSearchValue = searchValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-					  const regex = new RegExp(escapedSearchValue, 'gi');
-					  result = result.replace(regex, replaceValue);
-					}
-					return result;
-				  }
+    function applyReplacements(str) {
+      if (typeof str !== 'string') return str;
+      let result = str;
+      for (const [searchValue, replaceValue] of Object.entries(replacements)) {
+        const escapedSearchValue = searchValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(escapedSearchValue, 'gi');
+        result = result.replace(regex, replaceValue);
+      }
+      return result;
+    }
 
-				  // Агрегация по ПВЗ
-				  const dataByPvz = {};
-				  for (let i = 1; i < rows.length; i++) {
-					const row = rows[i];
-					if (!Array.isArray(row)) continue;
+    // === 4. Парсинг вычетов баллов (лист 3) — по ПВЗ ===
+    const deductionByPvzName = {};
+    if (wb.SheetNames[3]) {
+      const dedWs = wb.Sheets[wb.SheetNames[3]];
+      const dedRows = XLSX.utils.sheet_to_json(dedWs, { header: 1, raw: true });
+      for (let i = 1; i < dedRows.length; i++) {
+        const row = dedRows[i];
+        const rawPvz = row[1]; // B
+        const amount = parseFloat(row[4]); // E
+        if (typeof rawPvz === 'string' && !isNaN(amount) && amount > 0) {
+          const pvzName = applyReplacements(rawPvz.trim());
+          deductionByPvzName[pvzName] = (deductionByPvzName[pvzName] || 0) + amount;
+        }
+      }
+    }
 
-					let rawPvzName = row[PVZ_COL];
-					let rawService = row[SERVICE_COL];
-					if (typeof rawPvzName === 'string') {
-					  rawPvzName = applyReplacements(rawPvzName);
-					}
-					if (typeof rawService === 'string') {
-					  rawService = applyReplacements(rawService);
-					}
+    // === 5. Парсинг вычетов за клиентские возвраты (лист 4) — по ПВЗ ===
+    const returnByPvzName = {};
+    if (wb.SheetNames[4]) {
+      const retWs = wb.Sheets[wb.SheetNames[4]];
+      const retRows = XLSX.utils.sheet_to_json(retWs, { header: 1, raw: true });
+      for (let i = 1; i < retRows.length; i++) {
+        const row = retRows[i];
+        const rawPvz = row[1]; // B
+        const amount = parseFloat(row[4]); // E
+        if (typeof rawPvz === 'string' && !isNaN(amount) && amount > 0) {
+          const pvzName = applyReplacements(rawPvz.trim());
+          returnByPvzName[pvzName] = (returnByPvzName[pvzName] || 0) + amount;
+        }
+      }
+    }
 
-					const pvzName = rawPvzName ? String(rawPvzName).trim() : '';
-					if (!pvzName) continue;
+    // === 6. Агрегация транзакций по ПВЗ ===
+    const dataByPvz = {};
+    for (let i = 1; i < transRows.length; i++) {
+      const row = transRows[i];
+      if (!Array.isArray(row)) continue;
 
-					const service = rawService ? String(rawService).trim() : '';
-					const timeStr = row[TIME_COL];
-					const orderCostExVAT = parseFloat(row[ORDER_COST_EX_VAT_COL]) || 0;
-					const serviceCost = parseFloat(row[SERVICE_COST_COL]) || 0;
+      let rawPvzName = row[PVZ_COL];
+      let rawService = row[SERVICE_COL];
 
-					if (!dataByPvz[pvzName]) {
-					  dataByPvz[pvzName] = {
-						dailySums: {},
-						hourlySums: {},
-						orderRevenue: 0,
-						serviceCostTotal: 0,
-						serviceCount: {},
-					  };
-					}
+      if (typeof rawPvzName === 'string') rawPvzName = applyReplacements(rawPvzName);
+      if (typeof rawService === 'string') rawService = applyReplacements(rawService);
 
-					const pvz = dataByPvz[pvzName];
+      const pvzName = rawPvzName ? String(rawPvzName).trim() : '';
+      if (!pvzName) continue;
 
-					// Оборот
-					if (
-					  service === 'Выдача заказа с Маркета' &&
-					  serviceCost > 0 &&
-					  orderCostExVAT > 0
-					) {
-					  pvz.orderRevenue += orderCostExVAT;
-					}
+      const service = rawService ? String(rawService).trim() : '';
+      const timeStr = row[TIME_COL];
+      const orderCostExVAT = parseFloat(row[ORDER_COST_EX_VAT_COL]) || 0;
+      const serviceCost = parseFloat(row[SERVICE_COST_COL]) || 0;
 
-					// Счётчик услуг
-					pvz.serviceCount[service] = (pvz.serviceCount[service] || 0) + 1;
+      // ❗ ИГНОРИРУЕМ "Приём оплаты картой"
+      if (service === 'Приём оплањѹ каѬњой') continue;
 
-					// Время
-					const parts = timeStr.split(' ');
-					if (parts.length < 2) continue;
-					const [datePart, timePart] = parts;
-					const [y, m, d] = datePart.split('-');
-					if (!y || !m || !d) continue;
-					const dayKey = d.padStart(2, '0');
-					const hourKey = timePart.substring(0, 2) || '00';
+      if (!dataByPvz[pvzName]) {
+        dataByPvz[pvzName] = {
+          dailySums: {},
+          hourlySums: {},
+          orderRevenue: 0,
+          serviceCostTotal: 0,
+          serviceCount: {},
+          deductionAmount: deductionByPvzName[pvzName] || 0,
+          clientReturnAmount: returnByPvzName[pvzName] || 0,
+        };
+      }
 
-					// Дневная сумма
-					pvz.dailySums[dayKey] = (pvz.dailySums[dayKey] || 0) + serviceCost;
+      const pvz = dataByPvz[pvzName];
 
-					// Почасовая сумма
-					pvz.hourlySums[dayKey] = pvz.hourlySums[dayKey] || {};
-					pvz.hourlySums[dayKey][hourKey] = (pvz.hourlySums[dayKey][hourKey] || 0) + serviceCost;
+      if (service === 'Выдача заказа с Маркета' && serviceCost > 0 && orderCostExVAT > 0) {
+        pvz.orderRevenue += orderCostExVAT;
+      }
 
-					pvz.serviceCostTotal += serviceCost;
-				  }
+      pvz.serviceCount[service] = (pvz.serviceCount[service] || 0) + 1;
 
-				  renderAnalysis(dataByPvz, lastDay, year, month);
-				} catch (error) {
-				  console.error('Ошибка при обработке файла:', error);
-				  alert('Произошла ошибка при чтении файла. Проверьте формат и содержимое.');
-				}
-			  };
+      const parts = timeStr.split(' ');
+      if (parts.length < 2) continue;
+      const [datePart, timePart] = parts;
+      const [y, m, d] = datePart.split('-');
+      if (!y || !m || !d) continue;
+      const dayKey = d.padStart(2, '0');
+      const hourKey = timePart.substring(0, 2) || '00';
+
+      pvz.dailySums[dayKey] = (pvz.dailySums[dayKey] || 0) + serviceCost;
+      pvz.hourlySums[dayKey] = pvz.hourlySums[dayKey] || {};
+      pvz.hourlySums[dayKey][hourKey] = (pvz.hourlySums[dayKey][hourKey] || 0) + serviceCost;
+      pvz.serviceCostTotal += serviceCost;
+    }
+
+    renderAnalysis(dataByPvz, lastDay, year, month);
+  } catch (error) {
+    console.error('Ошибка при обработке файла:', error);
+    alert('Произошла ошибка при чтении файла. Проверьте формат и содержимое.');
+  }
+};
 
 			  reader.onerror = () => alert('Ошибка при чтении файла.');
 			  reader.readAsArrayBuffer(file);
 			}
 
-function renderAnalysis(dataByPvz, lastDay, year, month) {
-  const container = document.getElementById('actAnalysisResult');
-  container.style.display = 'block';
-  container.innerHTML = '';
+			function renderAnalysis(dataByPvz, lastDay, year, month) {
+			  const container = document.getElementById('actAnalysisResult');
+			  container.style.display = 'block';
+			  container.innerHTML = '';
 
-  // Маппинг числовых месяцев на русские названия
-  const monthNames = [
-    'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
-    'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
-  ];
-  const monthName = monthNames[month - 1]; // month - 1, так как массив начинается с 0
+			  // Маппинг числовых месяцев на русские названия
+			  const monthNames = [
+				'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+				'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
+			  ];
+			  const monthName = monthNames[month - 1]; // month - 1, так как массив начинается с 0
 
-  Object.entries(dataByPvz).forEach(([pvzName, pvzData]) => {
-    const section = document.createElement('div');
-    section.style.border = '1px solid #eee';
-    section.style.borderRadius = '8px';
-    section.style.marginBottom = '20px';
-    section.style.overflow = 'hidden';
+			  Object.entries(dataByPvz).forEach(([pvzName, pvzData]) => {
+				const section = document.createElement('div');
+				section.style.border = '1px solid #eee';
+				section.style.borderRadius = '8px';
+				section.style.marginBottom = '20px';
+				section.style.overflow = 'hidden';
 
-    const header = document.createElement('div');
-    header.className = 'accordion-header';
-    header.style.cssText = 'background:#f5f5f5;padding:12px 16px;cursor:pointer;font-weight:bold;display:flex;justify-content:space-between;';
-    header.innerHTML = `<span>${k(pvzName)}</span><span>▼</span>`;
-    section.appendChild(header);
+				const header = document.createElement('div');
+				header.className = 'accordion-header';
+				header.style.cssText = 'background:#f5f5f5;padding:12px 16px;cursor:pointer;font-weight:bold;display:flex;justify-content:space-between;';
+				header.innerHTML = `<span>${k(pvzName)}</span><span>▼</span>`;
+				section.appendChild(header);
 
-    const content = document.createElement('div');
-    content.className = 'accordion-content';
-    content.style.cssText = 'display:none;padding:16px;';
-    const pvzId = pvzName.replace(/\s+/g, '_').replace(/[^a-z0-9_]/gi, '_');
+				const content = document.createElement('div');
+				content.className = 'accordion-content';
+				content.style.cssText = 'display:none;padding:16px;';
+				const pvzId = pvzName.replace(/\s+/g, '_').replace(/[^a-z0-9_]/gi, '_');
 
-    // HTML для кнопки выбора даты и крестика
-    content.innerHTML = `
-      <div><strong>Оборот:</strong> ${pvzData.orderRevenue.toFixed(2)} ₽</div>
-      <div class="date-selector-container" style="margin:12px 0; position:relative; display:flex; align-items:center; gap:6px;">
-        <button id="dateSelectorBtn-${pvzId}" class="date-selector-btn"
-          style="padding:8px 12px;background:#f5f5f5;border:none;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:18px;min-width:175px;max-width:175px;min-height:48px;max-height:48px;">
-          <span style="font-size:16px;">Выберите дату</span>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-            <line x1="16" y1="2" x2="16" y2="6"></line>
-            <line x1="8" y1="2" x2="8" y2="6"></line>
-            <line x1="3" y1="10" x2="21" y2="10"></line>
-          </svg>
-        </button>
-        <button id="dateClearBtn-${pvzId}"
-          style="width:28px;height:28px;background: rgba(0, 0, 0, 0);border:none;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px;color:#333;">
-          𐄂
-        </button>
-        <div id="calendarPopup-${pvzId}" class="calendar-popup"
-          style="position: fixed;background:white;border:1px solid #ddd;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.2);padding:12px;z-index:0;min-width:280px;max-width:280px;min-height:240px;display:none;">
-          <div class="calendar-header" style="font-weight:bold;text-align:center;margin-bottom:10px;">${monthName} ${year}</div>
-          <div class="calendar-days-header" style="display:grid;grid-template-columns:repeat(7,1fr);text-align:center;color:#888;font-size:14px;margin-bottom:5px;">
-            <div>пн</div><div>вт</div><div>ср</div><div>чт</div><div>пт</div><div>сб</div><div>вс</div>
-          </div>
-          <div class="calendar-grid" style="display:grid;grid-template-columns:repeat(7,1fr);grid-gap:4px;">
-            <!-- Дни вставляются динамически -->
-          </div>
-        </div>
-      </div>
-      <div id="pvz-day-summary-${pvzId}" style="font-size:16px;margin:8px 0;"></div>
-      <div id="pvz-chart-${pvzId}" style="height:250px;margin-top:15px;"></div>
-      <div style="margin-top:15px;"><strong>Статистика услуг:</strong></div>
-      <ul style="margin-top:8px;padding-left:20px;">
-        ${Object.entries(pvzData.serviceCount)
-          .map(([svc, cnt]) => `<li>${k(svc)}: ${cnt} раз</li>`)
-          .join('')}
-      </ul>
-    `;
-    section.appendChild(content);
-    container.appendChild(section);
+				// HTML для кнопки выбора даты и крестика
+				content.innerHTML = `
+				  <div><strong>Оборот:</strong> ${pvzData.orderRevenue.toFixed(2)} ₽</div>
+				  <div class="date-selector-container" style="margin:12px 0; position:relative; display:flex; align-items:center; gap:6px;">
+					<button id="dateSelectorBtn-${pvzId}" class="date-selector-btn"
+					  style="padding:8px 12px;background:#f5f5f5;border:none;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:18px;min-width:175px;max-width:175px;min-height:48px;max-height:48px;">
+					  <span style="font-size:16px;">Выберите дату</span>
+					  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+						<line x1="16" y1="2" x2="16" y2="6"></line>
+						<line x1="8" y1="2" x2="8" y2="6"></line>
+						<line x1="3" y1="10" x2="21" y2="10"></line>
+					  </svg>
+					</button>
+					<button id="dateClearBtn-${pvzId}"
+					  style="width:28px;height:28px;background: rgba(0, 0, 0, 0);border:none;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px;color:#333;">
+					  𐄂
+					</button>
+					<div id="calendarPopup-${pvzId}" class="calendar-popup"
+					  style="position: fixed;background:white;border:1px solid #ddd;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.2);padding:12px;z-index:0;min-width:280px;max-width:280px;min-height:240px;max-height:240px;display:none;">
+					  <div class="calendar-header" style="font-weight:bold;text-align:left;margin-bottom:10px;">${monthName} ${year}</div>
+					  <div class="calendar-days-header" style="display:grid;grid-template-columns:repeat(7,1fr);text-align:center;color:#888;font-size:14px;margin-bottom:5px;">
+						<div>пн</div><div>вт</div><div>ср</div><div>чт</div><div>пт</div><div>сб</div><div>вс</div>
+					  </div>
+					  <div class="calendar-grid" style="display:grid;grid-template-columns:repeat(7,1fr);grid-gap:4px;">
+						<!-- Дни вставляются динамически -->
+					  </div>
+					</div>
+				  </div>
+				  <div id="pvz-day-summary-${pvzId}" style="font-size:16px;margin:8px 0;"></div>
+				  <div id="pvz-chart-${pvzId}" style="height:250px;margin-top:15px;"></div>
+				  <div style="margin-top:15px;"><strong>Статистика услуг:</strong></div>
+				  <ul style="margin-top:8px;padding-left:20px;">
+					${Object.entries(pvzData.serviceCount)
+					  .map(([svc, cnt]) => `<li>${k(svc)}: ${cnt} раз</li>`)
+					  .join('')}
+				  </ul>
+				`;
+				section.appendChild(content);
+				container.appendChild(section);
 
-    // Обработчики для аккордеона
-    header.addEventListener('click', () => {
-      const isActive = content.style.display === 'block';
-      content.style.display = isActive ? 'none' : 'block';
-      header.querySelector('span:last-child').textContent = isActive ? '▼' : '▲';
-    });
-
-    // Получаем элементы
-    const dateSelectorBtn = document.getElementById(`dateSelectorBtn-${pvzId}`);
-    const dateClearBtn = document.getElementById(`dateClearBtn-${pvzId}`);
-    const calendarPopup = document.getElementById(`calendarPopup-${pvzId}`);
-    const calendarGrid = calendarPopup.querySelector('.calendar-grid');
-    const summaryEl = content.querySelector(`#pvz-day-summary-${pvzId}`);
-    const chartEl = content.querySelector(`#pvz-chart-${pvzId}`);
-
-    // Инициализируем состояние: по умолчанию "все дни"
-    let selectedDay = null;
-
-    // Функция для обновления представления (вынесена отдельно)
-    function updateView(day = null) {
-      if (day === null) {
-        // Все дни
-        summaryEl.textContent = `Сумма услуг: ${pvzData.serviceCostTotal.toFixed(2)} ₽`;
-        const days = Array.from({ length: lastDay }, (_, i) => i + 1);
-        const labels = days.map(d => d.toString());
-        const values = days.map(d => pvzData.dailySums[String(d).padStart(2, '0')] || 0);
-        const maxY = Math.max(...values, 500);
-        const yMax = Math.ceil(maxY / 500) * 500;
-        renderBarChart(chartEl, { labels, values, yMax, step: 500, title: 'Доход по дням' });
-      } else {
-        // Конкретный день
-        const d = String(day).padStart(2, '0');
-        const daySum = pvzData.dailySums[d] || 0;
-        summaryEl.textContent = `Сумма за ${day} число: ${daySum.toFixed(2)} ₽`;
-        const hours = Array.from({ length: 24 }, (_, i) => i);
-        const values = hours.map(h => {
-          const hourly = pvzData.hourlySums[d] || {};
-          return hourly[String(h).padStart(2, '0')] || 0;
-        });
-        const maxY = Math.max(...values, 500);
-        const yMax = Math.ceil(maxY / 500) * 500;
-        renderBarChart(chartEl, {
-          labels: hours.map(h => `${h}:00`),
-          values,
-          yMax,
-          step: 500,
-          title: `Доход по часам за ${day} число`
-        });
-      }
-    }
-
-    // Инициализация: показываем "все дни"
-    updateView();
-    function toggleCalendar() {
-      if (calendarPopup.style.display === 'block') {
-        calendarPopup.style.display = 'none';
-      } else {
-        // Закрываем все другие календари
-        document.querySelectorAll('.calendar-popup').forEach(el => {
-          if (el !== calendarPopup) el.style.display = 'none';
-        });
-        // Открываем текущий
-        calendarPopup.style.display = 'block';
-        // Позиционируем относительно контейнера (не fixed!)
-        const containerRect = dateSelectorBtn.closest('.date-selector-container').getBoundingClientRect();
-        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-        const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
-        calendarPopup.style.top = `${containerRect.bottom + scrollTop}px`;
-        calendarPopup.style.left = `${containerRect.left + scrollLeft}px`;
-        generateCalendarGrid(calendarGrid, year, month, lastDay, selectedDay, (day) => {
-          selectedDay = day;
-          updateView(day);
-          const dStr = String(day).padStart(2, '0');
-          const mStr = String(month).padStart(2, '0');
-          dateSelectorBtn.querySelector('span:first-child').textContent = `${dStr}.${mStr}.${year}`;
-          calendarPopup.style.display = 'none';
-        });
-      }
-    }
-    // Показать/скрыть календарь при клике на кнопку
-    dateSelectorBtn.addEventListener('click', (e) => {
-      e.stopPropagation(); // Предотвращаем закрытие аккордеона
-      if (calendarPopup.style.display === 'block') {
-        calendarPopup.style.display = 'none';
-      } else {
-        // Закрываем все другие календари
-        document.querySelectorAll('.calendar-popup').forEach(el => {
-          if (el !== calendarPopup) el.style.display = 'none';
-        });
-        // Открываем текущий
-        calendarPopup.style.display = 'block';
-        // Позиционируем календарь под кнопкой
-        const rect = dateSelectorBtn.getBoundingClientRect();
-        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-        const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
-        calendarPopup.style.top = `${rect.bottom + scrollTop}px`;
-        calendarPopup.style.left = `${rect.left + scrollLeft}px`;
-        // Генерируем сетку календаря
-        generateCalendarGrid(calendarGrid, year, month, lastDay, selectedDay, (day) => {
-          selectedDay = day;
-          updateView(day);
-          const dStr = String(day).padStart(2, '0');
-          const mStr = String(month).padStart(2, '0');
-          dateSelectorBtn.querySelector('span:first-child').textContent = `${dStr}.${mStr}.${year}`;
-          calendarPopup.style.display = 'none';
-        });
-      }
-    });
-
-    // Сбросить выбранную дату при клике на крестик
-    dateClearBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      selectedDay = null;
-	  calendarPopup.style.display = 'none';
-      updateView();
-      dateSelectorBtn.querySelector('span:first-child').textContent = 'Выберите дату';
-    });
-	
-	let wheelRepositionTimer = null;
-    window.addEventListener('wheel', () => {
-      if (calendarPopup.style.display === 'block') {
-        calendarPopup.style.display = 'none';
-        toggleCalendar();
-      }
-    });
-    // Закрытие календаря при клике вне его
-    document.addEventListener('click', (e) => {
-      if (!calendarPopup.contains(e.target) && e.target !== dateSelectorBtn && e.target !== dateClearBtn) {
-        calendarPopup.style.display = 'none';
-      }
-    });
-
-    // Функция генерации сетки календаря
-    function generateCalendarGrid(gridElement, year, month, lastDay, currentSelectedDay, onDayClick) {
-      gridElement.innerHTML = ''; // Очищаем
-
-      // Создаем пустые ячейки до первого дня недели
-      const firstDate = new Date(year, month - 1, 1); // month - 1, потому что в JS месяцы с 0
-      const firstDayOfWeek = firstDate.getDay(); // 0=вс, 1=пн, ... 6=сб
-      const startOffset = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1; // Начинаем с понедельника (0)
-
-      for (let i = 0; i < startOffset; i++) {
-        const emptyCell = document.createElement('div');
-        emptyCell.style.height = '30px';
-        gridElement.appendChild(emptyCell);
-      }
-
-      // Заполняем дни месяца
-      for (let day = 1; day <= lastDay; day++) {
-        const dayCell = document.createElement('div');
-        dayCell.textContent = day;
-        dayCell.style.textAlign = 'center';
-        dayCell.style.padding = '8px';
-        dayCell.style.cursor = 'pointer';
-        dayCell.style.height = '30px';
-        dayCell.style.fontSize = '14px';
-        dayCell.style.borderRadius = '4px';
-
-        // Стили по умолчанию
-        dayCell.style.backgroundColor = 'white';
-        dayCell.style.color = '#333';
-
-        // Если это выбранный день, выделяем желтым
-        if (currentSelectedDay === day) {
-          dayCell.style.backgroundColor = '#FFCC00';
-          dayCell.style.fontWeight = 'bold';
-        }
-
-        // Обработчик наведения
-        dayCell.addEventListener('mouseenter', () => {
-          if (currentSelectedDay !== day) {
-            dayCell.style.backgroundColor = '#f0f0f0';
-          }
-        });
-
-        dayCell.addEventListener('mouseleave', () => {
-          if (currentSelectedDay !== day) {
-            dayCell.style.backgroundColor = 'white';
-          }
-        });
-
-        // Обработчик клика
-        dayCell.addEventListener('click', () => {
-          onDayClick(day);
-        });
-
-        gridElement.appendChild(dayCell);
-      }
-
-      // Добавляем пустые ячейки, чтобы заполнить сетку 7x6
-      const totalCells = 7 * 6; // 42 ячейки
-      const filledCells = startOffset + lastDay;
-      for (let i = 0; i < totalCells - filledCells; i++) {
-        const emptyCell = document.createElement('div');
-        emptyCell.style.height = '30px';
-        gridElement.appendChild(emptyCell);
-      }
-    }
-  });
-}
-			function updatePvzView(pvzData, day, summaryEl, chartEl, lastDay) {
-			  if (day === 'all') {
-				summaryEl.textContent = `Сумма услуг: ${pvzData.serviceCostTotal.toFixed(2)} ₽`;
-				const days = Array.from({ length: lastDay }, (_, i) => i + 1);
-				const labels = days.map(d => d.toString());
-				const values = days.map(d => pvzData.dailySums[String(d).padStart(2, '0')] || 0);
-				const maxY = Math.max(...values, 500);
-				const yMax = Math.ceil(maxY / 500) * 500;
-				renderBarChart(chartEl, { labels, values, yMax, step: 500, title: 'Доход по дням' });
-			  } else {
-				const d = String(day).padStart(2, '0');
-				const daySum = pvzData.dailySums[d] || 0;
-				summaryEl.textContent = `Сумма за ${day} число: ${daySum.toFixed(2)} ₽`;
-				const hours = Array.from({ length: 24 }, (_, i) => i);
-				const values = hours.map(h => {
-				  const hourly = pvzData.hourlySums[d] || {};
-				  return hourly[String(h).padStart(2, '0')] || 0;
+				// Обработчики для аккордеона
+				header.addEventListener('click', () => {
+				  const isActive = content.style.display === 'block';
+				  content.style.display = isActive ? 'none' : 'block';
+				  header.querySelector('span:last-child').textContent = isActive ? '▼' : '▲';
 				});
-				const maxY = Math.max(...values, 500);
-				const yMax = Math.ceil(maxY / 500) * 500;
-				renderBarChart(chartEl, {
-				  labels: hours.map(h => `${h}:00`),
-				  values,
-				  yMax,
-				  step: 500,
-				  title: `Доход по часам за ${day} число`
+
+				// Получаем элементы
+				const dateSelectorBtn = document.getElementById(`dateSelectorBtn-${pvzId}`);
+				const dateClearBtn = document.getElementById(`dateClearBtn-${pvzId}`);
+				const calendarPopup = document.getElementById(`calendarPopup-${pvzId}`);
+				const calendarGrid = calendarPopup.querySelector('.calendar-grid');
+				const summaryEl = content.querySelector(`#pvz-day-summary-${pvzId}`);
+				const chartEl = content.querySelector(`#pvz-chart-${pvzId}`);
+
+				// Инициализируем состояние: по умолчанию "все дни"
+				let selectedDay = null;
+
+				// Функция для обновления представления (вынесена отдельно)
+				function updateView(day = 'all') {
+					if (day === 'all') {
+					  const deduction = pvzData.deductionAmount || 0;
+					  const clientReturn = pvzData.clientReturnAmount || 0;
+
+					  let baseSum = pvzData.serviceCostTotal;
+					  let suffix = '';
+
+					  if (deduction > 0 || clientReturn > 0) {
+						baseSum -= (deduction + clientReturn);
+						const parts = [];
+						if (deduction > 0) parts.push(`Вычет Баллов: ${deduction.toFixed(2)}`);
+						if (clientReturn > 0) parts.push(`Вычет за возвраты: ${clientReturn.toFixed(2)}`);
+						suffix = ` (${parts.join(', ')})`;
+					  }
+
+				  summaryEl.innerHTML = `<strong>Сумма услуг:</strong> ${baseSum.toFixed(2)} ₽${suffix}`;
+
+					const days = Array.from({ length: lastDay }, (_, i) => i + 1);
+					const labels = days.map(d => d.toString());
+					const values = days.map(d => pvzData.dailySums[String(d).padStart(2, '0')] || 0);
+					const maxY = Math.max(...values, 500);
+					const yMax = Math.ceil(maxY / 500) * 500;
+					renderBarChart(chartEl, { labels, values, yMax, step: 500, title: 'Доход по дням' });
+				  } else {
+					// Конкретный день
+					const d = String(day).padStart(2, '0');
+					const daySum = pvzData.dailySums[d] || 0;
+					summaryEl.innerHTML = `<strong>Сумма за</strong> ${day} <strong>число:</strong> ${daySum.toFixed(2)} ₽`;
+					const hours = Array.from({ length: 24 }, (_, i) => i);
+					const values = hours.map(h => {
+					  const hourly = pvzData.hourlySums[d] || {};
+					  return hourly[String(h).padStart(2, '0')] || 0;
+					});
+					const maxY = Math.max(...values, 500);
+					const yMax = Math.ceil(maxY / 500) * 500;
+					renderBarChart(chartEl, {
+					  labels: hours.map(h => `${h}:00`),
+					  values,
+					  yMax,
+					  step: 500,
+					  title: `Доход по часам за ${day} число`
+					});
+				  }
+				}
+
+				// Инициализация: показываем "все дни"
+				updateView();
+				function toggleCalendar() {
+				  if (calendarPopup.style.display === 'block') {
+					calendarPopup.style.display = 'none';
+				  } else {
+					// Закрываем все другие календари
+					document.querySelectorAll('.calendar-popup').forEach(el => {
+					  if (el !== calendarPopup) el.style.display = 'none';
+					});
+					// Открываем текущий
+					calendarPopup.style.display = 'block';
+					// Позиционируем относительно контейнера (не fixed!)
+					const containerRect = dateSelectorBtn.closest('.date-selector-container').getBoundingClientRect();
+					const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+					const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+					calendarPopup.style.top = `${containerRect.bottom + scrollTop}px`;
+					calendarPopup.style.left = `${containerRect.left + scrollLeft}px`;
+					generateCalendarGrid(calendarGrid, year, month, lastDay, selectedDay, (day) => {
+					  selectedDay = day;
+					  updateView(day);
+					  const dStr = String(day).padStart(2, '0');
+					  const mStr = String(month).padStart(2, '0');
+					  dateSelectorBtn.querySelector('span:first-child').textContent = `${dStr}.${mStr}.${year}`;
+					  calendarPopup.style.display = 'none';
+					});
+				  }
+				}
+				// Показать/скрыть календарь при клике на кнопку
+				dateSelectorBtn.addEventListener('click', (e) => {
+				  e.stopPropagation(); // Предотвращаем закрытие аккордеона
+				  if (calendarPopup.style.display === 'block') {
+					calendarPopup.style.display = 'none';
+				  } else {
+					// Закрываем все другие календари
+					document.querySelectorAll('.calendar-popup').forEach(el => {
+					  if (el !== calendarPopup) el.style.display = 'none';
+					});
+					// Открываем текущий
+					calendarPopup.style.display = 'block';
+					// Позиционируем календарь под кнопкой
+					const rect = dateSelectorBtn.getBoundingClientRect();
+					const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+					const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+					calendarPopup.style.top = `${rect.bottom + scrollTop}px`;
+					calendarPopup.style.left = `${rect.left + scrollLeft}px`;
+					// Генерируем сетку календаря
+					generateCalendarGrid(calendarGrid, year, month, lastDay, selectedDay, (day) => {
+					  selectedDay = day;
+					  updateView(day);
+					  const dStr = String(day).padStart(2, '0');
+					  const mStr = String(month).padStart(2, '0');
+					  dateSelectorBtn.querySelector('span:first-child').textContent = `${dStr}.${mStr}.${year}`;
+					  calendarPopup.style.display = 'none';
+					});
+				  }
 				});
-			  }
+
+				// Сбросить выбранную дату при клике на крестик
+				dateClearBtn.addEventListener('click', (e) => {
+				  e.stopPropagation();
+				  selectedDay = null;
+				  calendarPopup.style.display = 'none';
+				  updateView();
+				  dateSelectorBtn.querySelector('span:first-child').textContent = 'Выберите дату';
+				});
+				
+				let wheelRepositionTimer = null;
+				window.addEventListener('wheel', () => {
+				  if (calendarPopup.style.display === 'block') {
+					calendarPopup.style.display = 'none';
+					toggleCalendar();
+				  }
+				});
+				// Закрытие календаря при клике вне его
+				document.addEventListener('click', (e) => {
+				  if (!calendarPopup.contains(e.target) && e.target !== dateSelectorBtn && e.target !== dateClearBtn) {
+					calendarPopup.style.display = 'none';
+				  }
+				});
+
+				// Функция генерации сетки календаря
+				function generateCalendarGrid(gridElement, year, month, lastDay, currentSelectedDay, onDayClick) {
+				  gridElement.innerHTML = ''; // Очищаем
+
+				  // Создаем пустые ячейки до первого дня недели
+				  const firstDate = new Date(year, month - 1, 1); // month - 1, потому что в JS месяцы с 0
+				  const firstDayOfWeek = firstDate.getDay(); // 0=вс, 1=пн, ... 6=сб
+				  const startOffset = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1; // Начинаем с понедельника (0)
+
+				  for (let i = 0; i < startOffset; i++) {
+					const emptyCell = document.createElement('div');
+					emptyCell.style.height = '30px';
+					gridElement.appendChild(emptyCell);
+				  }
+
+				  // Заполняем дни месяца
+				  for (let day = 1; day <= lastDay; day++) {
+					const dayCell = document.createElement('div');
+					dayCell.textContent = day;
+					dayCell.style.textAlign = 'center';
+					dayCell.style.padding = '8px';
+					dayCell.style.cursor = 'pointer';
+					dayCell.style.height = '30px';
+					dayCell.style.fontSize = '14px';
+					dayCell.style.borderRadius = '4px';
+
+					// Стили по умолчанию
+					dayCell.style.backgroundColor = 'white';
+					dayCell.style.color = '#333';
+
+					// Если это выбранный день, выделяем желтым
+					if (currentSelectedDay === day) {
+					  dayCell.style.backgroundColor = '#FFCC00';
+					  dayCell.style.fontWeight = 'bold';
+					}
+
+					// Обработчик наведения
+					dayCell.addEventListener('mouseenter', () => {
+					  if (currentSelectedDay !== day) {
+						dayCell.style.backgroundColor = '#f0f0f0';
+					  }
+					});
+
+					dayCell.addEventListener('mouseleave', () => {
+					  if (currentSelectedDay !== day) {
+						dayCell.style.backgroundColor = 'white';
+					  }
+					});
+
+					// Обработчик клика
+					dayCell.addEventListener('click', () => {
+					  onDayClick(day);
+					});
+
+					gridElement.appendChild(dayCell);
+				  }
+
+				  // Добавляем пустые ячейки, чтобы заполнить сетку 7x6
+				  const totalCells = 7 * 6; // 42 ячейки
+				  const filledCells = startOffset + lastDay;
+				  for (let i = 0; i < totalCells - filledCells; i++) {
+					const emptyCell = document.createElement('div');
+					emptyCell.style.height = '30px';
+					gridElement.appendChild(emptyCell);
+				  }
+				}
+			  });
 			}
-
 			function renderBarChart(container, { labels, values, yMax, step, title }) {
 			  container.innerHTML = '';
 			  if (!labels || !labels.length) return;

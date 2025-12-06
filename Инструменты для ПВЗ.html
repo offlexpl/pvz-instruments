@@ -685,7 +685,8 @@
 			  <!-- Анализатор акта услуг -->
 			  <div class="tool-container">
 				<div class="tool-content" id="services-act-analysis-content">
-				  <text>Данный инструмент производит полный анализ детализированного акта услуг. Если у вас несколько ПВЗ, информация по каждому будет отображаться отдельно.</text>
+				  <text>Если у вас несколько пунктов выдачи, информация по каждому ПВЗ будет отображаться отдельно.</text>
+				  <p>⠀</p>
 				  <div class="form-section">
 					<label for="actFileInput">⠀⠀Загрузите акт:⠀⠀</label>
 					<button id="actFileBtn" class="select-button">Выбрать</button>
@@ -845,7 +846,7 @@
 			</div>
 		</div>
 		<script>
-				const currentVersion = "1.1.6";
+				const currentVersion = "1.1.7";
 			document.addEventListener('DOMContentLoaded', function() {
 				const versionDisplayElement = document.getElementById('version-display');
 				if (versionDisplayElement) {
@@ -1576,7 +1577,7 @@
 			  const fileName = file.name;
 			  const match = fileName.match(/report for (\d{4})-(\d{2})-(\d{2})\.xlsx/);
 			  if (!match) {
-				alert('Неверный формат имени файла. Ожидается: report for YYYY-MM-DD.xlsx');
+				showError("Неверный формат имени файла", "Ожидается: report for ГГГГ-ММ-ДД.xlsx");
 				return;
 			  }
 			   const [, yearStr, monthStr, lastDayStr] = match;
@@ -1593,13 +1594,13 @@
 				//Парсим транзакции
 				const transSheetName = wb.SheetNames[1];
 				if (!transSheetName) {
-				  alert('Лист "Транзакции" не найден.');
+					showError('Лист "Транзакции" не найден.', "Проверьте корректность загружаемого файла.");
 				  return;
 				}
 				const transWs = wb.Sheets[transSheetName];
 				const transRows = XLSX.utils.sheet_to_json(transWs, { header: 1, raw: true });
 				if (transRows.length < 2) {
-				  alert('Недостаточно данных в "Транзакциях".');
+					showError("Нечего считать", 'Недостаточно данных в "Транзакциях".');
 				  return;
 				}
 
@@ -1621,6 +1622,8 @@
 				  "иоайњемное вознагѬаждение за вѹдаѡђ заказа": "Выдача заказа с Маркета",
 				  "иѬием заказа идђѰего по xdoc на ПВЗ": "Приём заказа XDOC",
 				  "иокђпањеля": "Покупателя",
+				  "Йѹплања за пѬием DBS заказа": "Прием DBS заказа",
+				  "Йѹплања за вѹдаѡђ DBS заказов": "Выдача DBS заказа",
 				  "иѬием": "Приём",
 				  "иѬијм": "Приём",
 				  "СлиенњскиѦ": "Клиентских",
@@ -1689,20 +1692,30 @@
 				  const orderCostExVAT = parseFloat(row[ORDER_COST_EX_VAT_COL]) || 0;
 				  const serviceCost = parseFloat(row[SERVICE_COST_COL]) || 0;
 
-				  // ❗ ИГНОРИРУЕМ "Приём оплаты картой"
-				  if (service === 'Приём оплањѹ каѬњой') continue;
+				  // ИГНОРИРУЕМ
+					if (service === 'Нополнињелђное вознагѬаждение Мсполнињелѽ за оњѡењнѹй пеѬиод исѦодя из ўоѬмђлѹ') {
+					  dataByPvz[pvzName].supportAmount += serviceCost;
+					  continue;
+					}
+					if (service === 'РазмеѰение элеменњов бѬендиѬования') {
+					  dataByPvz[pvzName].brandingAmount += serviceCost;
+					  continue;
+					}
+					if (service === 'Приём оплањѹ каѬњой') continue;
 
 				  if (!dataByPvz[pvzName]) {
-					dataByPvz[pvzName] = {
-					  dailySums: {},
-					  hourlySums: {},
-					  orderRevenue: 0,
-					  serviceCostTotal: 0,
-					  serviceCount: {},
-					  deductionAmount: deductionByPvzName[pvzName] || 0,
-					  clientReturnAmount: returnByPvzName[pvzName] || 0,
-					};
-				  }
+					  dataByPvz[pvzName] = {
+						dailySums: {},
+						hourlySums: {},
+						orderRevenue: 0,
+						serviceCostTotal: 0,
+						serviceCount: {},
+						deductionAmount: deductionByPvzName[pvzName] || 0,
+						clientReturnAmount: returnByPvzName[pvzName] || 0,
+						supportAmount: 0,
+						brandingAmount: 0,
+					  };
+					}
 
 				  const pvz = dataByPvz[pvzName];
 
@@ -1741,7 +1754,7 @@
 						renderAnalysis(dataByPvz, lastDay, year, month);
 					  } catch (error) {
 						console.error('Ошибка при обработке файла:', error);
-						alert('Произошла ошибка при чтении файла. Проверьте формат и содержимое.');
+						showError("Произошла ошибка при чтении файла", "Проверьте формат и содержимое.");
 					  }
 					};
 
@@ -1859,14 +1872,33 @@
 				const deduction = pvzData.deductionAmount || 0;
 				const clientReturn = pvzData.clientReturnAmount || 0;
 				let baseSum = pvzData.serviceCostTotal;
-				let suffix = '';
-				if (deduction > 0 || clientReturn > 0) {
-				  baseSum -= (deduction + clientReturn);
-				  const parts = [];
-				  if (deduction > 0) parts.push(`Вычет Баллов: ${deduction.toFixed(2)}`);
-				  if (clientReturn > 0) parts.push(`Вычет за возвраты: ${clientReturn.toFixed(2)}`);
-				  suffix = ` (${parts.join(', ')})`;
-				}
+			let suffixParts = [];
+			let netAdjustment = 0;
+
+			// +++ Добавляем поддержку и брендирование
+			const support = pvzData.supportAmount || 0;
+			const branding = pvzData.brandingAmount || 0;
+			if (support > 0) {
+			  suffixParts.push(`Поддержка: +${support.toFixed(2)}`);
+			  netAdjustment += support;
+			}
+			if (branding > 0) {
+			  suffixParts.push(`Брендирование: +${branding.toFixed(2)}`);
+			  netAdjustment += branding;
+			}
+
+			// --- Вычитаем штрафы
+			if (deduction > 0) {
+			  suffixParts.push(`Вычет Баллов: -${deduction.toFixed(2)}`);
+			  netAdjustment -= deduction;
+			}
+			if (clientReturn > 0) {
+			  suffixParts.push(`Вычет за возвраты: -${clientReturn.toFixed(2)}`);
+			  netAdjustment -= clientReturn;
+			}
+
+			baseSum += netAdjustment; // ← раньше baseSum -= (deduction + clientReturn), теперь общее
+			const suffix = suffixParts.length ? ` (${suffixParts.join(', ')})` : '';
 				summaryEl.innerHTML = `<strong>Сумма услуг:</strong> ${baseSum.toFixed(2)} ₽${suffix}`;
 				const days = Array.from({ length: lastDay }, (_, i) => i + 1);
 				const labels = days.map(d => d.toString());
@@ -1999,6 +2031,12 @@
 			calendarPopup.style.display = 'none';
 		  }
 		});
+		
+		document.addEventListener('wheel', (e) => {
+		  if (!calendarPopup.contains(e.target) && e.target !== dateSelectorBtn && e.target !== dateClearBtn) {
+			calendarPopup.style.display = 'none';
+		  }
+		});
 
 				function generateCalendarGrid(gridElement, year, month, lastDay, currentSelectedDay, onDayClick) {
 				  gridElement.innerHTML = '';
@@ -2110,58 +2148,60 @@
 				  g.appendChild(text);
 				});
 
-// Столбики + tooltip при наведении
-const barW = Math.min(40, Math.max(2, usableWidth / labels.length - 4));
-const tooltipEl = document.getElementById('custom-tooltip'); // ← единый tooltip
-values.forEach((val, i) => {
-  if (val <= 0) return;
-  const x = xScale(i) - barW / 2;
-  const h = (val / yMax) * chartH;
-  const y = chartH - h;
-  const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-  rect.setAttribute('x', x);
-  rect.setAttribute('y', y);
-  rect.setAttribute('width', barW);
-  rect.setAttribute('height', h);
-  rect.setAttribute('fill', '#FFCC00');
-  rect.setAttribute('opacity', '0.9');
-  g.appendChild(rect);
+				// Столбики + tooltip при наведении
+				const barW = Math.min(40, Math.max(2, usableWidth / labels.length - 4));
+				const tooltipEl = document.getElementById('custom-tooltip');
+				values.forEach((val, i) => {
+				  if (val <= 0) return;
+				  const x = xScale(i) - barW / 2;
+				  const h = (val / yMax) * chartH;
+				  const y = chartH - h;
+				  const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+				  rect.setAttribute('x', x);
+				  rect.setAttribute('y', y);
+				  rect.setAttribute('width', barW);
+				  rect.setAttribute('height', h);
+				  rect.setAttribute('fill', '#FFCC00');
+				  rect.setAttribute('opacity', '0.9');
+				  g.appendChild(rect);
 
-  // === Добавляем tooltip по аналогии с кнопкой ⚙️ ===
-  const tooltipText = typeof val === 'number' ? val.toLocaleString() : String(val);
-  
-  rect.addEventListener('mouseenter', () => {
-    tooltipEl.textContent = tooltipText;
-    tooltipEl.style.opacity = '1';
-  });
+				  const tooltipText = typeof val === 'number' ? val.toLocaleString() : String(val);
+				  
+				  rect.addEventListener('mouseenter', () => {
+					tooltipEl.textContent = tooltipText;
+					tooltipEl.style.opacity = '1';
+				  });
 
-  rect.addEventListener('mousemove', (e) => {
-    // ⚠️ e.clientX/Y — координаты курсора относительно viewport
-    const rectBB = tooltipEl.getBoundingClientRect();
-    const tooltipWidth = rectBB.width;
-    const tooltipHeight = rectBB.height;
+					rect.addEventListener('mouseenter', () => rect.setAttribute('fill', '#F5C400'));
+					rect.addEventListener('mouseleave', () => rect.setAttribute('fill', '#FFCC00'));
 
-    let left = e.clientX + 10;
-    let top = e.clientY + 10;
+				  rect.addEventListener('mousemove', (e) => {
+					// ⚠️ e.clientX/Y — координаты курсора относительно viewport
+					const rectBB = tooltipEl.getBoundingClientRect();
+					const tooltipWidth = rectBB.width;
+					const tooltipHeight = rectBB.height;
 
-    // ← Не уходить за границы экрана
-    if (left + tooltipWidth > window.innerWidth) {
-      left = e.clientX - tooltipWidth - 10;
-    }
-    if (top + tooltipHeight > window.innerHeight) {
-      top = e.clientY - tooltipHeight - 10;
-    }
-    left = Math.max(5, left);
-    top = Math.max(5, top);
+					let left = e.clientX + 10;
+					let top = e.clientY + 10;
 
-    tooltipEl.style.left = left + 'px';
-    tooltipEl.style.top = top + 'px';
-  });
+					// ← Не уходить за границы экрана
+					if (left + tooltipWidth > window.innerWidth) {
+					  left = e.clientX - tooltipWidth - 10;
+					}
+					if (top + tooltipHeight > window.innerHeight) {
+					  top = e.clientY - tooltipHeight - 10;
+					}
+					left = Math.max(5, left);
+					top = Math.max(5, top);
 
-  rect.addEventListener('mouseleave', () => {
-    tooltipEl.style.opacity = '0';
-  });
-});
+					tooltipEl.style.left = left + 'px';
+					tooltipEl.style.top = top + 'px';
+				  });
+
+				  rect.addEventListener('mouseleave', () => {
+					tooltipEl.style.opacity = '0';
+				  });
+				});
 			}
 
 			// HTML-экранирование

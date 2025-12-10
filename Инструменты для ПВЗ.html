@@ -846,7 +846,7 @@
 			</div>
 		</div>
 		<script>
-				const currentVersion = "1.1.7";
+				const currentVersion = "1.1.8";
 			document.addEventListener('DOMContentLoaded', function() {
 				const versionDisplayElement = document.getElementById('version-display');
 				if (versionDisplayElement) {
@@ -1672,7 +1672,29 @@
 				  }
 				}
 
-				// Агрегация транзакций по ПВЗ
+				const tariffByPvz = {};
+				for (let i = 1; i < transRows.length; i++) {
+				  const row = transRows[i];
+				  if (!Array.isArray(row)) continue;
+
+				  const rawPvzName = row[PVZ_COL];
+				  const service = String(row[SERVICE_COL] || '').trim();
+				  const tariffValue = parseFloat(row[11]); // L — индекс 11
+				  const unit = String(row[12] || '').trim(); // M — индекс 12
+
+				  if (
+					typeof rawPvzName === 'string' &&
+					service === 'иоайњемное вознагѬаждение за вѹдаѡђ заказа' &&
+					unit === '%' &&
+					!isNaN(tariffValue)
+				  ) {
+					const pvzName = applyReplacements(rawPvzName.trim());
+					if (!tariffByPvz[pvzName]) {
+					  tariffByPvz[pvzName] = tariffValue;
+					}
+				  }
+				}
+
 				const dataByPvz = {};
 				for (let i = 1; i < transRows.length; i++) {
 				  const row = transRows[i];
@@ -1714,6 +1736,7 @@
 						clientReturnAmount: returnByPvzName[pvzName] || 0,
 						supportAmount: 0,
 						brandingAmount: 0,
+						tariff: tariffByPvz[pvzName] || 0
 					  };
 					}
 
@@ -1794,9 +1817,10 @@
 			// --- Собираем уникальные услуги для селектора ---
 			const uniqueServices = Object.keys(pvzData.serviceCount).sort();
 			const serviceOptions = ['Все услуги', ...uniqueServices];
+			const tariffStr = pvzData.tariff ? `(ЭС: ${pvzData.tariff}%)` : '';
 
 			content.innerHTML = `
-			  <div><strong>Оборот:</strong> ${pvzData.orderRevenue.toFixed(2)} ₽</div>
+			  <div><strong>Оборот:</strong> ${pvzData.orderRevenue.toFixed(2)} ₽ ${tariffStr}</div>
 
 			  <!-- Календарь -->
 			  <div class="date-selector-container" style="margin:12px 0; position:relative; display:flex; align-items:center; gap:6px;">
@@ -2162,7 +2186,7 @@
 				  rect.setAttribute('width', barW);
 				  rect.setAttribute('height', h);
 				  rect.setAttribute('fill', '#FFCC00');
-				  rect.setAttribute('opacity', '0.9');
+				  rect.setAttribute('opacity', '1');
 				  g.appendChild(rect);
 
 				  const tooltipText = typeof val === 'number' ? val.toLocaleString() : String(val);
@@ -2172,7 +2196,7 @@
 					tooltipEl.style.opacity = '1';
 				  });
 
-					rect.addEventListener('mouseenter', () => rect.setAttribute('fill', '#F5C400'));
+					rect.addEventListener('mouseenter', () => rect.setAttribute('fill', '#ebbc00'));
 					rect.addEventListener('mouseleave', () => rect.setAttribute('fill', '#FFCC00'));
 
 				  rect.addEventListener('mousemove', (e) => {

@@ -1619,7 +1619,7 @@
 				  "иѬием С2С заказа на ПВЗ": "Приём С2С заказа",
 				  "ЙознагѬаждение за вѹдаѡђ С2С заказа": "Выдача С2С заказа",
 				  "ЙознагѬаждение за вѹдаѡђ кѬоссбоѬдеѬного заказа": "Выдача кроссбордерного заказа",
-				  "иоайњемное вознагѬаждение за вѹдаѡђ заказа": "Выдача заказа с Маркета",
+				  "иоайњемное вознагѬаждение за вѹдаѡђ заказа": "Выдача заказа с Mаркета",
 				  "иѬием заказа идђѰего по xdoc на ПВЗ": "Приём заказа XDOC",
 				  "иокђпањеля": "Покупателя",
 				  "Йѹплања за пѬием DBS заказа": "Прием DBS заказа",
@@ -1820,7 +1820,7 @@
 			const tariffStr = pvzData.tariff ? `(Тариф: ${pvzData.tariff}%)` : '';
 
 			content.innerHTML = `
-			  <div><strong>Оборот:</strong> ${pvzData.orderRevenue.toFixed(2)} ₽ ${tariffStr}</div>
+			  <div><strong>Оборот:</strong> ${pvzData.orderRevenue.toFixed(2)}₽ ${tariffStr}</div>
 
 			  <!-- Календарь -->
 			  <div class="date-selector-container" style="margin:12px 0; position:relative; display:flex; align-items:center; gap:6px;">
@@ -1923,7 +1923,7 @@
 
 			baseSum += netAdjustment; // ← раньше baseSum -= (deduction + clientReturn), теперь общее
 			const suffix = suffixParts.length ? ` (${suffixParts.join(', ')})` : '';
-				summaryEl.innerHTML = `<strong>Сумма услуг:</strong> ${baseSum.toFixed(2)} ₽${suffix}`;
+				summaryEl.innerHTML = `<strong>Сумма услуг:</strong> ${baseSum.toFixed(2)}₽${suffix}`;
 				const days = Array.from({ length: lastDay }, (_, i) => i + 1);
 				const labels = days.map(d => d.toString());
 				const values = days.map(d => pvzData.dailySums[String(d).padStart(2, '0')] || 0);
@@ -1932,7 +1932,7 @@
 			  } else {
 				const d = String(selectedDay).padStart(2, '0');
 				const daySum = pvzData.dailySums[d] || 0;
-				summaryEl.innerHTML = `<strong>Сумма за</strong> ${selectedDay} <strong>число:</strong> ${daySum.toFixed(2)} ₽`;
+				summaryEl.innerHTML = `<strong>Сумма за</strong> ${selectedDay} <strong>число:</strong> ${daySum.toFixed(2)}₽`;
 				const hours = Array.from({ length: 24 }, (_, i) => i);
 				const values = hours.map(h => {
 				  const hourly = pvzData.hourlySums[d] || {};
@@ -2231,7 +2231,7 @@
 			// HTML-экранирование
 			function k(str) {
 			  if (!str) return str;
-			  const map = {"Ѭ":"р","ѹ":"ы","њ":"т","ѡ":"ч","ђ":"у","ѽ":"ю","ў":"ф","Ѧ":"х","Ѱ":"щ","Ѡ":"ц","ј":"ё","Й":"В","Д":"З","Н":"Д"};
+			  const map = {"Ѭ":"р","ѹ":"ы","њ":"т","ѡ":"ч","ђ":"у","ѽ":"ю","ў":"ф","Ѧ":"х","Ѱ":"щ","Ѡ":"ц","ј":"ё","Й":"В","Д":"З","Н":"Д","М":"Г"};
 			  return str.split('').map(ch => map[ch] !== undefined ? map[ch] : ch).join('');
 			}
 			// Запуск после загрузки DOM
@@ -2268,7 +2268,6 @@
 		</script>
 	</body>
 </html>
-
 
 
 

@@ -1817,7 +1817,7 @@
 			// --- Собираем уникальные услуги для селектора ---
 			const uniqueServices = Object.keys(pvzData.serviceCount).sort();
 			const serviceOptions = ['Все услуги', ...uniqueServices];
-			const tariffStr = pvzData.tariff ? `(ЭС: ${pvzData.tariff}%)` : '';
+			const tariffStr = pvzData.tariff ? `(Тариф: ${pvzData.tariff}%)` : '';
 
 			content.innerHTML = `
 			  <div><strong>Оборот:</strong> ${pvzData.orderRevenue.toFixed(2)} ₽ ${tariffStr}</div>
@@ -2268,6 +2268,7 @@
 		</script>
 	</body>
 </html>
+
 
 
 

@@ -1041,7 +1041,7 @@
 			  }
 
 			  roleSwitcher.addEventListener('change', updateView);
-			  updateView(); // инициализация при загрузке
+			  updateView();
 			});
 			const autosaveFields = ['sender', 'executor', 'address5', 'executor5',];
 			autosaveFields.forEach(id => {
@@ -1077,16 +1077,13 @@
                 return ((mskHour + offset + 24) % 24);
             }
 
-            // --- Обновление отображения — интегрируется в updateView() ниже ---
             function applyRegionToLabels(labels, offset) {
-                // labels — массив строк вроде '0:00', '1:00', ...
                 return labels.map(lbl => {
                     const h = parseInt(lbl, 10);
                     return `${msKtoLocalHour(h, offset)}:00`;
                 });
             }
 
-            // --- Попап ---
             function toggleSettingsPopup() {
                 const popup = document.getElementById('settingsPopup');
                 const isVisible = popup.style.display === 'block';
@@ -1107,7 +1104,7 @@
             });
             // --- Сброс ВСЕГО ---
             function resetAllSaved() {
-                resetSavedFields(); // поля формы
+                resetSavedFields();
                 localStorage.removeItem('pvz_region');
                 document.getElementById('regionSelector').value = 'MSK';
                 closeSettingsPopup();
@@ -2622,6 +2619,21 @@
             document.addEventListener('DOMContentLoaded', function () {
                 checkForUpdate();
                 setTimeout(showUpdateHighlight, 300);
+			});
+
+            // Глобальный обработчик выбора региона — сохраняет всегда
+            document.addEventListener('DOMContentLoaded', () => {
+                const regionSel = document.getElementById('regionSelector');
+                if (!regionSel) return;
+
+                regionSel.addEventListener('change', () => {
+                    const val = regionSel.value;
+                    localStorage.setItem('pvz_region', val);
+                });
+
+                // При загрузке — ставим сохранённый регион в селектор
+                const saved = localStorage.getItem('pvz_region') || 'MSK';
+                regionSel.value = saved;
             });
 			
 			(function(m,e,t,r,i,k,a){

@@ -59,7 +59,7 @@
 				
 			}
 			.sidebar-header span {
-				font-weight: regular;
+				font-weight: normal;
 				font-size: 30px;
 				text-align: center;
 				color: white
@@ -181,7 +181,22 @@
 				border-radius: 8px;
 				border-color: #F5C400;
 			}
-			
+
+            .reset-button {
+                width: 100%;
+                background: #eee;
+                border: none;
+                border-radius: 6px;
+                padding: 10px 0;
+                font-size: 15px;
+                font-weight: bold;
+            }
+
+			.reset-button:hover {
+				background: #D7D7D7;
+				cursor: pointer;
+			}
+
 			.page-content {
 				padding: 30px 20px 0 8px;
 				flex-grow: 1;
@@ -225,7 +240,7 @@
 				display: grid;
 				gap: 10px 20px;
 				margin-bottom: 15px;
-				align-items: top;
+				align-items: center;
 			}
 			.form-grid-unusual label {
 				text-align: left;
@@ -295,7 +310,7 @@
 				margin-right: 5px;
 				cursor: pointer;
 				position: relative;
-				top: 2px;
+
 			}
 			.styled-checkbox:checked {
 				background-color: var(--accent-color);
@@ -560,146 +575,167 @@
 <!-- Главная страница -->
 		<div class="main-content">
 			<div class="header">
-			  <div class="header-left-group" style="display: flex; align-items: center; gap: 8px;">
-				<div class="header-role-selector">
-				  <select id="roleSwitcher">
-					<option value="employee" selected>Для сотрудников</option>
-					<option value="owner">Для владельцев</option>
-				  </select>
+				<div class="header-left-group" style="display: flex; align-items: center; gap: 8px;">
+					<div class="header-role-selector">
+						<select id="roleSwitcher">
+							<option value="employee" selected>Для сотрудников</option>
+							<option value="owner">Для владельцев</option>
+						</select>
+					</div>
 				</div>
-			  </div>
-			  <div class="header-right-group" style="display: flex; align-items: center; gap: 8px;">
-				<button onclick="resetSavedFields()" class="header-button" data-tooltip="Сбросить сохранённые поля">⚙️</button>
-			  </div>
+				<div class="header-right-group" style="display: flex; align-items: center; gap: 8px;">
+					<button onclick="toggleSettingsPopup()" class="header-button" data-tooltip="Настройки" style="width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; padding: 0;">
+						<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+							<circle cx="12" cy="12" r="3" />
+							<path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+						</svg>
+					</button>
+				</div>
 			</div>
-		  <div class="page-content">
-			<h1 class="page-title">Генератор РАПП</h1>
-			<div class="tool-container">
-			  <!-- Генератор РАПП -->
-			  <div class="tool-content active" id="rap-generator-content">
-				<div class="form-section">
-				  <div class="form-grid">
-					<label for="actNumber">Номер акта*:</label>
-					<label for="sender">Отправитель*:</label>
-					<label for="executor">Исполнитель*:</label>
-					<input type="text" id="actNumber" placeholder="✎ Порядковый номер акта" value="1" required>
-					<input type="text" id="sender" placeholder="✎ ИП\ООО владельца ПВЗ" value="">
-					<input type="text" id="executor" placeholder="✎ Яндекс Курьер" value="">
-					<input type="text" id="scanInput" class="scan-input-row" placeholder="Сканируйте ШК или введите номер и нажмите ENTER" maxlength="25">
-				  </div>
-				  <div class="scan-list" id="scanList">
-					<p>Отсканированные посылки будут отображаться здесь...</p>
-				  </div>
-				  <div class="generate-button-container">
-					<button onclick="generateActRAPP()" class="generate-button">🖨️ Распечатать</button>
-				  </div>
-				</div>
-			  </div>
-<!-- Генератор Акта 5 -->
-			  <div class="tool-content" id="act-5-generator-content">
-				<div class="form-section">
-				  <div class="form-grid">
-					<label for="executor5">Исполнитель*:</label>
-					<label for="recipient5">Получатель*:</label>
-					<label for="address5">Адрес ПВЗ*:</label>
-					<input type="text" id="executor5" placeholder="✎ ИП/ООО владельца ПВЗ" value="">
-					<input type="text" id="recipient5" placeholder="✎ Фамилия И.О. клиента" value="">
-					<input type="text" id="address5" placeholder="✎ Адрес вашего ПВЗ" value="">
-					<label for="orderNumber5">Номер заказа*:</label>
-					<label></label>
-					<label></label>
-					<input type="text" id="orderNumber5" placeholder="✎ Номер заказа" value="">
-					<div></div>
-					
-					<div></div>
-				  </div>
-				  <!-- Остальное содержимое акта 5 (чекбоксы и поля) — оставляем без изменений -->
-				  <div class="checkbox-section">
-					<div class="checkbox-row">
-					  <div class="checkbox-label">Причина составления*:</div>
-					  <div class="checkbox-container">
-						<div class="checkbox-item"><input type="checkbox" id="reason1" class="styled-checkbox"><label for="reason1">повреждение вложения</label></div>
-						<div class="checkbox-item"><input type="checkbox" id="reason2" class="styled-checkbox"><label for="reason2">повреждение упаковки</label></div>
-						<div class="checkbox-item"><input type="checkbox" id="reason3" class="styled-checkbox"><label for="reason3">несоответствие вложения</label></div>
-						<div class="checkbox-item"><input type="checkbox" id="reason4" class="styled-checkbox"><label for="reason4">недостача вложения</label></div>
-						<div class="checkbox-item"><input type="checkbox" id="reason5" class="styled-checkbox"><label for="reason5">наличие стороннего/фирменного скотча Исполнителя</label></div>
-					  </div>
-					</div>
-					<div class="checkbox-row">
-					  <div class="checkbox-label">Тип упаковки*:</div>
-					  <div class="checkbox-container">
-						<div class="checkbox-item"><input type="checkbox" id="pack1" class="styled-checkbox"><label for="pack1">картонный короб</label></div>
-						<div class="checkbox-item"><input type="checkbox" id="pack2" class="styled-checkbox"><label for="pack2">пакет</label></div>
-						<div class="checkbox-item"><input type="checkbox" id="pack3" class="styled-checkbox"><label for="pack3">деревянный ящик</label></div>
-						<div class="checkbox-item"><input type="checkbox" id="pack4" class="styled-checkbox"><label for="pack4">мешок</label></div>
-						<div class="checkbox-item"><input type="checkbox" id="pack5" class="styled-checkbox"><label for="pack5">стретч-пленка</label></div>
-						<div class="checkbox-item checkbox-item-with-input">
-						  <input type="checkbox" id="packOtherCheck" class="styled-checkbox">
-						  <label for="packOtherCheck">другое (укажите):</label>
-						  <input type="text" id="packOther" class="inline-input">
+			<div class="page-content">
+				<h1 class="page-title">Генератор РАПП</h1>
+				<div class="tool-container">
+					<!-- Генератор РАПП -->
+					<div class="tool-content active" id="rap-generator-content">
+						<div class="form-section">
+							<div class="form-grid">
+								<label for="actNumber">Номер акта*:</label>
+								<label for="sender">Отправитель*:</label>
+								<label for="executor">Исполнитель*:</label>
+								<input type="text" id="actNumber" placeholder="✎ Порядковый номер акта" value="1" required>
+								<input type="text" id="sender" placeholder="✎ ИП\ООО владельца ПВЗ" value="">
+								<input type="text" id="executor" placeholder="✎ Яндекс Курьер" value="">
+								<input type="text" id="scanInput" class="scan-input-row" placeholder="Сканируйте ШК или введите номер и нажмите ENTER" maxlength="25">
+							</div>
+							<div class="scan-list" id="scanList">
+								<p>Отсканированные посылки будут отображаться здесь...</p>
+							</div>
+							<div class="generate-button-container">
+								<button onclick="generateActRAPP()" class="generate-button" style="display: flex; align-items: center; gap: 6px;">
+									<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+										<path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+										<path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6" />
+										<path d="M10 22H14" />
+										<path d="M12 18v4" />
+									</svg>
+									Распечатать
+								</button>
+							</div>
 						</div>
-					  </div>
 					</div>
-					<div class="checkbox-row">
-					  <div class="checkbox-label">Маркировка на упаковке:</div>
-					  <div class="checkbox-container checkbox-container-icons">
-						<div class="checkbox-item checkbox-item-icon"><input type="checkbox" id="mark1" class="styled-checkbox"><span>↑↑</span><label for="mark1">хранить вертикально</label></div>
-						<div class="checkbox-item checkbox-item-icon"><input type="checkbox" id="mark2" class="styled-checkbox"><span>🍷</span><label for="mark2">хрупкий товар</label></div>
-						<div class="checkbox-item checkbox-item-icon"><input type="checkbox" id="mark3" class="styled-checkbox"><span>☂</span><label for="mark3">беречь от влаги</label></div>
-						<div class="checkbox-item checkbox-item-icon"><input type="checkbox" id="mark4" class="styled-checkbox"><span>⬆️</span><label for="mark4">не ставить сверху</label></div>
-						<div class="checkbox-item checkbox-item-icon"><input type="checkbox" id="mark5" class="styled-checkbox"><span>🔄</span><label for="mark5">не кантовать</label></div>
-					  </div>
-					</div>
-					<div class="checkbox-row">
-					  <div class="checkbox-label">Описание повреждений:</div>
-					  <div class="checkbox-container">
-						<div class="checkbox-item"><input type="checkbox" id="damage1" class="styled-checkbox"><label for="damage1">деформация упаковки</label></div>
-						<div class="checkbox-item"><input type="checkbox" id="damage2" class="styled-checkbox"><label for="damage2">наличие доступа к вложению</label></div>
-						<div class="checkbox-item"><input type="checkbox" id="damage3" class="styled-checkbox"><label for="damage3">вмятины/замятия на упаковке</label></div>
-						<div class="checkbox-item"><input type="checkbox" id="damage4" class="styled-checkbox"><label for="damage4">намокание/промокание</label></div>
-						<div class="checkbox-item"><input type="checkbox" id="damage5" class="styled-checkbox"><label for="damage5">расхождение в весе</label></div>
-						<div class="checkbox-item checkbox-item-with-input">
-						  <input type="checkbox" id="damageOtherCheck" class="styled-checkbox">
-						  <label for="damageOtherCheck">другое (укажите):</label>
-						  <input type="text" id="damageOther" class="inline-input">
+					<!-- Генератор Акта 5 -->
+					<div class="tool-content" id="act-5-generator-content">
+						<div class="form-section">
+							<div class="form-grid">
+								<label for="executor5">Исполнитель*:</label>
+								<label for="recipient5">Получатель*:</label>
+								<label for="address5">Адрес ПВЗ*:</label>
+								<input type="text" id="executor5" placeholder="✎ ИП/ООО владельца ПВЗ" value="">
+								<input type="text" id="recipient5" placeholder="✎ Фамилия И.О. клиента" value="">
+								<input type="text" id="address5" placeholder="✎ Адрес вашего ПВЗ" value="">
+								<label for="orderNumber5">Номер заказа*:</label>
+								<label></label>
+								<label></label>
+								<input type="text" id="orderNumber5" placeholder="✎ Номер заказа" value="">
+								<div></div>
+
+								<div></div>
+							</div>
+							<!-- Остальное содержимое акта 5 (чекбоксы и поля) — оставляем без изменений -->
+							<div class="checkbox-section">
+								<div class="checkbox-row">
+									<div class="checkbox-label">Причина составления*:</div>
+									<div class="checkbox-container">
+										<div class="checkbox-item"><input type="checkbox" id="reason1" class="styled-checkbox"><label for="reason1">повреждение вложения</label></div>
+										<div class="checkbox-item"><input type="checkbox" id="reason2" class="styled-checkbox"><label for="reason2">повреждение упаковки</label></div>
+										<div class="checkbox-item"><input type="checkbox" id="reason3" class="styled-checkbox"><label for="reason3">несоответствие вложения</label></div>
+										<div class="checkbox-item"><input type="checkbox" id="reason4" class="styled-checkbox"><label for="reason4">недостача вложения</label></div>
+										<div class="checkbox-item"><input type="checkbox" id="reason5" class="styled-checkbox"><label for="reason5">наличие стороннего/фирменного скотча Исполнителя</label></div>
+									</div>
+								</div>
+								<div class="checkbox-row">
+									<div class="checkbox-label">Тип упаковки*:</div>
+									<div class="checkbox-container">
+										<div class="checkbox-item"><input type="checkbox" id="pack1" class="styled-checkbox"><label for="pack1">картонный короб</label></div>
+										<div class="checkbox-item"><input type="checkbox" id="pack2" class="styled-checkbox"><label for="pack2">пакет</label></div>
+										<div class="checkbox-item"><input type="checkbox" id="pack3" class="styled-checkbox"><label for="pack3">деревянный ящик</label></div>
+										<div class="checkbox-item"><input type="checkbox" id="pack4" class="styled-checkbox"><label for="pack4">мешок</label></div>
+										<div class="checkbox-item"><input type="checkbox" id="pack5" class="styled-checkbox"><label for="pack5">стретч-пленка</label></div>
+										<div class="checkbox-item checkbox-item-with-input">
+											<input type="checkbox" id="packOtherCheck" class="styled-checkbox">
+											<label for="packOtherCheck">другое (укажите):</label>
+											<input type="text" id="packOther" class="inline-input">
+										</div>
+									</div>
+								</div>
+								<div class="checkbox-row">
+									<div class="checkbox-label">Маркировка на упаковке:</div>
+									<div class="checkbox-container checkbox-container-icons">
+										<div class="checkbox-item checkbox-item-icon"><input type="checkbox" id="mark1" class="styled-checkbox"><span>↑↑</span><label for="mark1">хранить вертикально</label></div>
+										<div class="checkbox-item checkbox-item-icon"><input type="checkbox" id="mark2" class="styled-checkbox"><span>🍷</span><label for="mark2">хрупкий товар</label></div>
+										<div class="checkbox-item checkbox-item-icon"><input type="checkbox" id="mark3" class="styled-checkbox"><span>☂</span><label for="mark3">беречь от влаги</label></div>
+										<div class="checkbox-item checkbox-item-icon"><input type="checkbox" id="mark4" class="styled-checkbox"><span>⬆️</span><label for="mark4">не ставить сверху</label></div>
+										<div class="checkbox-item checkbox-item-icon"><input type="checkbox" id="mark5" class="styled-checkbox"><span>🔄</span><label for="mark5">не кантовать</label></div>
+									</div>
+								</div>
+								<div class="checkbox-row">
+									<div class="checkbox-label">Описание повреждений:</div>
+									<div class="checkbox-container">
+										<div class="checkbox-item"><input type="checkbox" id="damage1" class="styled-checkbox"><label for="damage1">деформация упаковки</label></div>
+										<div class="checkbox-item"><input type="checkbox" id="damage2" class="styled-checkbox"><label for="damage2">наличие доступа к вложению</label></div>
+										<div class="checkbox-item"><input type="checkbox" id="damage3" class="styled-checkbox"><label for="damage3">вмятины/замятия на упаковке</label></div>
+										<div class="checkbox-item"><input type="checkbox" id="damage4" class="styled-checkbox"><label for="damage4">намокание/промокание</label></div>
+										<div class="checkbox-item"><input type="checkbox" id="damage5" class="styled-checkbox"><label for="damage5">расхождение в весе</label></div>
+										<div class="checkbox-item checkbox-item-with-input">
+											<input type="checkbox" id="damageOtherCheck" class="styled-checkbox">
+											<label for="damageOtherCheck">другое (укажите):</label>
+											<input type="text" id="damageOther" class="inline-input">
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="form-grid-unusual">
+								<label for="additionalInfo5">Дополнительные сведения:</label>
+								<textarea id="additionalInfo5" placeholder="✎ Опишите повреждения" rows="1"></textarea>
+							</div>
+							<div class="form-grid">
+								<label for="executorName5">Представитель Исполнителя*:</label>
+								<label for="executorPosition5">Должность*:</label>
+								<label></label>
+								<input type="text" id="executorName5" placeholder="✎ Фамилия И.О. сотрудника" class="form-grid-input">
+								<input type="text" id="executorPosition5" placeholder="✎ Оператор" value="Оператор" class="form-grid-input">
+							</div>
+							<div class="generate-button-container">
+								<button onclick="generateAct5()" class="generate-button" style="display: flex; align-items: center; gap: 6px;">
+									<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+										<path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+										<path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6" />
+										<path d="M10 22H14" />
+										<path d="M12 18v4" />
+									</svg>
+									Распечатать
+								</button>
+							</div>
 						</div>
-					  </div>
 					</div>
-				  </div>
-				  <div class="form-grid-unusual">
-					<label for="additionalInfo5">Дополнительные сведения:</label>
-					<textarea id="additionalInfo5" placeholder="✎ Опишите повреждения" rows="1"></textarea>
-				  </div>
-				  <div class="form-grid">
-					<label for="executorName5">Представитель Исполнителя*:</label>
-					<label for="executorPosition5">Должность*:</label>
-					<label></label>
-					<input type="text" id="executorName5" placeholder="✎ Фамилия И.О. сотрудника" class="form-grid-input">
-					<input type="text" id="executorPosition5" placeholder="✎ Оператор" value="Оператор" class="form-grid-input">
-				  </div>
-				  <div class="generate-button-container">
-					<button onclick="generateAct5()" class="generate-button">🖨️ Распечатать</button>
-				  </div>
+					<!-- Анализатор акта услуг -->
+					<div class="tool-container">
+						<div class="tool-content" id="services-act-analysis-content">
+							<text>Если у вас несколько пунктов выдачи, информация по каждому ПВЗ будет отображаться отдельно.</text>
+							<p>⠀</p>
+							<div class="form-section">
+								<label for="actFileInput">⠀⠀Загрузите акт:⠀⠀</label>
+								<button id="actFileBtn" class="select-button">Выбрать</button>
+								<input type="file" id="actFileInput" accept=".xlsx" style="display: none;" />
+								<div id="actAnalysisResult" class="tool-container" style="display: none; margin-top: 20px;">
+									<!-- Результат будет вставлен сюда -->
+								</div>
+							</div>
+						</div>
+					</div>
 				</div>
-			  </div>
-			  <!-- Анализатор акта услуг -->
-			  <div class="tool-container">
-				<div class="tool-content" id="services-act-analysis-content">
-				  <text>Если у вас несколько пунктов выдачи, информация по каждому ПВЗ будет отображаться отдельно.</text>
-				  <p>⠀</p>
-				  <div class="form-section">
-					<label for="actFileInput">⠀⠀Загрузите акт:⠀⠀</label>
-					<button id="actFileBtn" class="select-button">Выбрать</button>
-					<input type="file" id="actFileInput" accept=".xlsx" style="display: none;" />
-					  <div id="actAnalysisResult" class="tool-container" style="display: none; margin-top: 20px;">
-						<!-- Результат будет вставлен сюда -->
-					  </div>
-				  </div>
-				</div>
-			  </div>
 			</div>
-		  </div>
-<!-- Подвал -->
+			<!-- Подвал -->
 			<div class="footer-content">
 				<div class="footer-links">
 					<a href="https://github.com/offlexpl/pvz-instruments" target="_blank">GitHub</a>
@@ -710,14 +746,14 @@
 					<span>Версия: <span id="version-display">Загрузка...</span></span>
 				</div>
 			</div>
-<!-- Уведомления -->
+			<!-- Уведомления -->
 			<div id="successMessage" class="success-message hidden">
 				✅ Акт успешно сгенерирован!
 			</div>
 			<div id="errorMessage" class="error-message hidden">
 				Ошибка: Заполните все обязательные поля и добавьте хотя бы одну посылку.
 			</div>
-<!-- Подсказка -->
+			<!-- Подсказка -->
 			<div id="custom-tooltip" style="
 				position: fixed;
 				pointer-events: none;
@@ -732,7 +768,40 @@
 				transition: opacity 0.2s;
 				box-shadow: 0 2px 6px rgba(0,0,0,0.2);">
 			</div>
-<!-- Политика Конфиденциальности -->
+			<!-- Настройки -->
+			<div id="settingsPopup" style="display:none; position:fixed; top:70px; right:20px; width:360px; background:white; border:1px solid #ccc; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.15); z-index:2000; padding:16px;">
+				<h3 style="margin:0 0 12px; font-size:16px;">Настройки</h3>
+
+				<div style="margin-bottom:20px;">
+					<label style="font-size:14px; color:#666; display:block; margin-bottom:6px;">Регион</label>
+					<div class="header-role-selector" style="width:100%;">
+						<select id="regionSelector" style="width:100%; font-size:15px; height:44px;">
+							<option value="MSK"> (МСК 00:00) Москва</option>
+							<option value="SAMARA"> (МСК+01:00) Самара</option>
+							<option value="EKAT"> (МСК+02:00) Екатеринбург</option>
+							<option value="OMSK"> (МСК+03:00) Омск</option>
+							<option value="KRAS"> (МСК+04:00) Красноярск</option>
+							<option value="IRKT"> (МСК+05:00) Иркутск</option>
+							<option value="YAKT"> (МСК+06:00) Якутск</option>
+							<option value="VLAD"> (МСК+07:00) Владивосток</option>
+						</select>
+					</div>
+				</div>
+
+				<div style="margin-bottom:12px; font-size:14px; color:#666;">Сброс настроек и полей</div>
+				<button onclick="resetAllSaved()" id="resetButton" class="reset-button">Сбросить</button>
+			</div>
+
+			<div id="updateHighlight" style="display:none; position:fixed; z-index:10000; pointer-events: none;">
+				<div style="background:#2980b9; color:white; padding:12px 20px; border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.2); font-size:14px; font-weight:500;max-width:300px; position:relative;">
+					<span id="highlightText"></span>
+					<button id="highlightClose" style="position:absolute; top:6px; right:6px; background:transparent; border:none;color:white; font-size:18px; cursor:pointer; pointer-events: all;">
+						×
+					</button>
+				</div>
+			</div>
+
+			<!-- Политика Конфиденциальности -->
 			<div id="privacy-policy-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 10000;">
 				<div style="position: relative; width: 90%; max-width: 800px; height: 80%; max-height: 800px; margin: 5% auto; background-color: white; border-radius: 10px; padding: 40px; overflow-y: auto; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
 
@@ -782,7 +851,7 @@
 					</div>
 				</div>
 			</div>
-<!-- Пользовательское соглашение -->
+			<!-- Пользовательское соглашение -->
 			<div id="terms-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 10000;">
 				<div style="position: relative; width: 90%; max-width: 800px; height: 80%; max-height: 800px; margin: 5% auto; background-color: white; border-radius: 8px; padding: 40px; overflow-y: auto; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
 
@@ -790,7 +859,7 @@
 					<p>⠀</p>
 					<p><strong>Дата последнего обновления:</strong> 14.11.2025</p>
 					<p>⠀</p>
-					<p">Настоящее Пользовательское соглашение регулирует отношения между Вами (далее — «Пользователь») и владельцем приложения «Инструменты для ПВЗ» (далее — «Приложение») при использовании Приложения.</p>
+					<p>Настоящее Пользовательское соглашение регулирует отношения между Вами (далее — «Пользователь») и владельцем приложения «Инструменты для ПВЗ» (далее — «Приложение») при использовании Приложения.</p>
 					<p>⠀</p>
 					<h3>1. Общие положения</h3>
 					<p>⠀</p>
@@ -846,13 +915,100 @@
 			</div>
 		</div>
 		<script>
-				const currentVersion = "1.1.9";
+				const currentVersion = "1.2.0";
 			document.addEventListener('DOMContentLoaded', function() {
 				const versionDisplayElement = document.getElementById('version-display');
 				if (versionDisplayElement) {
 					versionDisplayElement.textContent = currentVersion;
 				}
 			});
+
+            const UPDATE_MESSAGES = {
+                '1.2.0': 'Добавлен выбор региона (часовой пояс) для анализа акта услуг. Графики теперь учитывают локальное время ПВЗ.'
+            };
+
+            const LAST_READ_VERSION_KEY = 'pvz_last_read_version';
+			const HIGHLIGHT_READ_KEY = 'pvz_highlight_read_v';
+
+            function positionHighlight(targetElement, offset = { x: 0, y: 0 }) {
+                if (!targetElement) return;
+                const rect = targetElement.getBoundingClientRect();
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+
+                // Размеры хайлайта
+                const highlight = document.getElementById('updateHighlight');
+                const highlightRect = highlight.firstElementChild.getBoundingClientRect(); // обёртка с padding/border
+                const hWidth = highlightRect.width;
+                const hHeight = highlightRect.height;
+
+                // Исходная позиция
+                let left = rect.left + scrollLeft + offset.x;
+                let top = rect.bottom + scrollTop + offset.y;
+
+                // Защита от выхода за правую границу
+                if (left + hWidth > window.innerWidth) {
+                    left = window.innerWidth - hWidth - 5;
+                }
+                // Защита от выхода за левую границу
+                if (left < 0) {
+                    left = 5;
+                }
+                // Защита от выхода за нижнюю границу
+                if (top + hHeight > window.innerHeight + scrollTop) {
+                    top = rect.top + scrollTop - hHeight - 5;
+                }
+                // Защита от выхода за верхнюю границу
+                if (top < scrollTop) {
+                    top = scrollTop + 5;
+                }
+
+                highlight.style.left = left + 'px';
+                highlight.style.top = top + 'px';
+            }
+
+            function showUpdateHighlight() {
+                const highlight = document.getElementById('updateHighlight');
+                const textEl = document.getElementById('highlightText');
+                const closeBtn = document.getElementById('highlightClose');
+
+                const message = UPDATE_MESSAGES[currentVersion];
+
+                if (!message || message.trim() === '') return;
+
+                const lastRead = localStorage.getItem(LAST_READ_VERSION_KEY);
+                const highlightRead = localStorage.getItem(HIGHLIGHT_READ_KEY + currentVersion);
+                if (lastRead === currentVersion && highlightRead === 'true') return;
+
+                textEl.textContent = message;
+                highlight.style.display = 'block';
+
+                // Привязка к элементу
+                const targetEl = document.querySelector('.header-button');
+                if (targetEl) {
+                    positionHighlight(targetEl, { x: -300, y: -50 });
+
+
+                    const updatePos = () => positionHighlight(targetEl, { x: -10, y: 10 });
+                    window.addEventListener('scroll', updatePos, { passive: true });
+                    window.addEventListener('resize', updatePos, { passive: true });
+                    highlight.dataset.listeners = 'true';
+                }
+
+                const markAsRead = () => {
+                    localStorage.setItem(LAST_READ_VERSION_KEY, currentVersion);
+                    localStorage.setItem(HIGHLIGHT_READ_KEY + currentVersion, 'true');
+                    highlight.style.display = 'none';
+                    if (highlight.dataset.listeners) {
+                        window.removeEventListener('scroll', updatePos);
+                        window.removeEventListener('resize', updatePos);
+                        delete highlight.dataset.listeners;
+                    }
+                };
+                closeBtn.onclick = null;
+                closeBtn.onclick = markAsRead;
+            }
+
 						document.addEventListener('DOMContentLoaded', () => {
 			  const roleSwitcher = document.getElementById('roleSwitcher');
 			  const menuItems = document.querySelectorAll('.menu-item');
@@ -900,6 +1056,66 @@
 					});
 				}
 			});
+
+            // --- Константы часовых поясов ---
+            const REGION_OFFSETS = {
+                MSK: 0,
+                SAMARA: 1,
+                EKAT: 2,
+                OMSK: 3,
+                KRAS: 4,
+                IRKT: 5,
+                YAKT: 6,
+                VLAD: 7
+            };
+
+            function getRegionOffset() {
+                return REGION_OFFSETS[localStorage.getItem('pvz_region') || 'MSK'] || 0;
+            }
+
+            function msKtoLocalHour(mskHour, offset) {
+                return ((mskHour + offset + 24) % 24);
+            }
+
+            // --- Обновление отображения — интегрируется в updateView() ниже ---
+            function applyRegionToLabels(labels, offset) {
+                // labels — массив строк вроде '0:00', '1:00', ...
+                return labels.map(lbl => {
+                    const h = parseInt(lbl, 10);
+                    return `${msKtoLocalHour(h, offset)}:00`;
+                });
+            }
+
+            // --- Попап ---
+            function toggleSettingsPopup() {
+                const popup = document.getElementById('settingsPopup');
+                const isVisible = popup.style.display === 'block';
+                popup.style.display = isVisible ? 'none' : 'block';
+
+                if (!isVisible) {
+                    const saved = localStorage.getItem('pvz_region') || 'MSK';
+                    document.getElementById('regionSelector').value = saved;
+                }
+            }
+
+            document.addEventListener('click', (e) => {
+                const popup = document.getElementById('settingsPopup');
+                const button = e.target.closest('.header-button');
+                if (popup.style.display === 'block' && !popup.contains(e.target) && !button) {
+                    popup.style.display = 'none';
+                }
+            });
+            // --- Сброс ВСЕГО ---
+            function resetAllSaved() {
+                resetSavedFields(); // поля формы
+                localStorage.removeItem('pvz_region');
+                document.getElementById('regionSelector').value = 'MSK';
+                closeSettingsPopup();
+			}
+
+            function closeSettingsPopup() {
+                document.getElementById('settingsPopup').style.display = 'none';
+            }
 
 			function resetSavedFields() {
 				autosaveFields.forEach(id => {
@@ -1851,7 +2067,7 @@
 			  </div>
 
 			  <!-- Итог по деньгам -->
-			  <div id="pvz-day-summary-${pvzId}" style="font-size:16px;margin:8px 0;"></div>
+			  <div id="pvz-day-summary-${pvzId}" style="font-size:16px;margin:8px 0;display:flex;align-items:center;gap:6px;"></div>
 			  <div id="pvz-chart-${pvzId}" style="height:250px;margin-top:15px;"></div>
 
 			  <!-- Статистика услуг -->
@@ -1863,7 +2079,7 @@
 					min-width:200px; font-size:14px; cursor:pointer;">
 					${serviceOptions.map(opt => `<option value="${opt === 'Все услуги' ? 'all' : opt}">${k(opt)}</option>`).join('')}
 				  </select>
-				<label style="display:flex;align-items:center;gap:4px;font-size:14px;color:#666;">
+				<label style="display:flex;align-items:center;gap:4px;font-size:14px;color:black;">
 					<input type="checkbox" id="accumulateCheckbox-${pvzId}" class="styled-checkbox">
 					С накоплением
 				  </label>
@@ -1890,188 +2106,211 @@
 			const moneyChartEl = document.getElementById(`pvz-chart-${pvzId}`);
 			const serviceSelector = document.getElementById(`serviceSelector-${pvzId}`);
 			const serviceChartEl = document.getElementById(`serviceChart-${pvzId}`);
+            const regionSel = document.getElementById(`regionSelector`);
+            const resetBtn = document.getElementById(`resetButton`);
 
 			// === Состояние ===
 			let selectedDay = null;
 			let selectedService = 'all';
 
-function updateView() {
-  // --- Обновляем сумму услуг ---
-  if (selectedDay === null) {
-    const deduction = pvzData.deductionAmount || 0;
-    const clientReturn = pvzData.clientReturnAmount || 0;
-    let baseSum = pvzData.serviceCostTotal;
-    const support = pvzData.supportAmount || 0;
-    const branding = pvzData.brandingAmount || 0;
-    let netAdjustment = support + branding - deduction - clientReturn;
-    baseSum += netAdjustment;
-    const suffixParts = [];
-    if (support > 0) suffixParts.push(`Поддержка: +${support.toFixed(2)}`);
-    if (branding > 0) suffixParts.push(`Брендирование: +${branding.toFixed(2)}`);
-    if (deduction > 0) suffixParts.push(`Вычет Баллов: -${deduction.toFixed(2)}`);
-    if (clientReturn > 0) suffixParts.push(`Вычет за возвраты: -${clientReturn.toFixed(2)}`);
-    const suffix = suffixParts.length ? ` (${suffixParts.join(', ')})` : '';
-    summaryEl.innerHTML = `<strong>Сумма услуг:</strong> ${baseSum.toFixed(2)} ₽${suffix}`;
+			function updateView() {
+			  // --- Обновляем сумму услуг ---
+				if (selectedDay === null) {
+				const offset = getRegionOffset();
+				const deduction = pvzData.deductionAmount || 0;
+				const clientReturn = pvzData.clientReturnAmount || 0;
+				let baseSum = pvzData.serviceCostTotal;
+				const support = pvzData.supportAmount || 0;
+				const branding = pvzData.brandingAmount || 0;
+				let netAdjustment = support + branding - deduction - clientReturn;
+				baseSum += netAdjustment;
+				const suffixParts = [];
+				if (support > 0) suffixParts.push(`Поддержка: +${support.toFixed(2)}`);
+				if (branding > 0) suffixParts.push(`Брендирование: +${branding.toFixed(2)}`);
+				if (deduction > 0) suffixParts.push(`Вычет Баллов: -${deduction.toFixed(2)}`);
+				if (clientReturn > 0) suffixParts.push(`Вычет за возвраты: -${clientReturn.toFixed(2)}`);
+				const suffix = suffixParts.length ? ` (${suffixParts.join(', ')})` : '';
+					summaryEl.innerHTML = `<strong>Сумма услуг:</strong> ${baseSum.toFixed(2)} ₽${suffix} 
+						<label style="display:flex;align-items:center;gap:4px;font-size:14px;color:black;">
+							<input type="checkbox" disabled checked id="averageRevenue-${pvzId}" class="styled-checkbox" style="cursor:not-allowed;">
+							Средняя выручка
+						</label>`;
 
-    const days = Array.from({ length: lastDay }, (_, i) => i + 1);
-    const dayValues = days.map(d => pvzData.dailySums[String(d).padStart(2, '0')] || 0);
-    const nonZeroDays = dayValues.filter(v => v > 0).length;
-    let avgLine = null;
-    if (nonZeroDays > 0) {
-      const avg = baseSum / nonZeroDays;
-      const projected = avg * lastDay;
-      avgLine = { value: avg, avg, projected };
-    }
-    const labels = days.map(d => d.toString());
-    const values = dayValues;
-    const yMax = Math.max(500, Math.ceil(Math.max(...values, 1) / 500) * 500);
-    renderBarChart(moneyChartEl, {
-      labels,
-      values,
-      yMax,
-      step: 500,
-      title: 'Доход по дням',
-      avgLine
-    });
-  } else {
-    const d = String(selectedDay).padStart(2, '0');
-    const daySum = pvzData.dailySums[d] || 0;
-    summaryEl.innerHTML = `<strong>Сумма за</strong> ${selectedDay} <strong>число:</strong> ${daySum.toFixed(2)} ₽`;
-    const hours = Array.from({ length: 24 }, (_, i) => i);
-    const values = hours.map(h => {
-      const hourly = pvzData.hourlySums[d] || {};
-      return hourly[String(h).padStart(2, '0')] || 0;
-    });
-    const yMax = Math.max(500, Math.ceil(Math.max(...values, 1) / 500) * 500);
-    renderBarChart(moneyChartEl, {
-      labels: hours.map(h => `${h}:00`),
-      values,
-      yMax,
-      step: 500,
-      title: `Доход по часам за ${selectedDay} число`
-    });
-  }
+                const avgCheckbox = document.getElementById(`averageRevenue-${pvzId}`);
+                summaryEl.addEventListener('change', (e) => {
+                    if (e.target.id === `averageRevenue-${pvzId}`) {
+                        updateView();
+                    }
+                });
 
-  // === Статистика УСЛУГ ===
-  const accumulateCheckbox = document.getElementById(`accumulateCheckbox-${pvzId}`);
-  accumulateCheckbox.addEventListener('change', updateView);  
-  const isStacked = selectedService === 'all' && accumulateCheckbox?.checked;
+				const days = Array.from({ length: lastDay }, (_, i) => i + 1);
+				const dayValues = days.map(d => pvzData.dailySums[String(d).padStart(2, '0')] || 0);
+				const nonZeroDays = dayValues.filter(v => v > 0).length;
 
-  if (selectedDay === null) {
-    // Все дни
-    const days = Array.from({ length: lastDay }, (_, i) => i + 1);
-    const labels = days.map(d => d.toString());
+                let avgLine = null;
+                if (nonZeroDays > 0) {
+                    const avg = baseSum / nonZeroDays;
+                    const projected = avg * lastDay;
+                    avgLine = { value: avg, avg, projected };
+				}
 
-    if (isStacked) {
-      const allServices = Object.keys(pvzData.serviceCount)
-        .filter(s => pvzData.serviceCount[s] > 0)
-        .sort();
-      const stackedValues = days.map(d => {
-        const dayKey = String(d).padStart(2, '0');
-        const dailyCounter = pvzData.dailyServiceCount?.[dayKey] || {};
-        return allServices.map(s => dailyCounter[s] || 0);
-      });
-		const maxY = Math.max(
-		  ...stackedValues.map(arr => arr.reduce((sum, v) => sum + v, 0)),
-		  5
-		);
-      const yMax = Math.ceil(maxY / 5) * 5;
-      renderBarChart(serviceChartEl, {
-        labels,
-        values: [],
-        yMax,
-        step: 5,
-        title: 'Кол-во услуг по дням (с накоплением)',
-        stacked: true,
-        stackedValues,
-        stackedLabels: allServices
-      });
-    } else {
-      let values;
-      if (selectedService === 'all') {
-        values = days.map(d => {
-          const dayKey = String(d).padStart(2, '0');
-          const daily = pvzData.dailyServiceCount?.[dayKey] || {};
-          return Object.values(daily).reduce((sum, cnt) => sum + cnt, 0);
-        });
-      } else {
-        values = days.map(d => {
-          const dayKey = String(d).padStart(2, '0');
-          return pvzData.dailyServiceCount?.[dayKey]?.[selectedService] || 0;
-        });
-      }
-      const maxY = Math.max(...values, 5);
-      const yMax = Math.ceil(maxY / 5) * 5;
-      renderBarChart(serviceChartEl, {
-        labels,
-        values,
-        yMax,
-        step: 5,
-        title: selectedService === 'all' ? 'Кол-во услуг по дням (все)' : `"${k(selectedService)}" по дням`
-      });
-    }
-  } else {
-    // Конкретный день
-    const d = String(selectedDay).padStart(2, '0');
-    const hours = Array.from({ length: 24 }, (_, i) => i);
-    const labels = hours.map(h => `${h}:00`);
+				const labels = days.map(d => d.toString());
+				const values = dayValues;
+				const yMax = Math.max(500, Math.ceil(Math.max(...values, 1) / 500) * 500);
+				renderBarChart(moneyChartEl, {
+				  labels,
+				  values,
+				  yMax,
+				  step: 500,
+				  title: 'Доход по дням',
+				  avgLine
+				});
+                } else {
+                    const d = String(selectedDay).padStart(2, '0');
+                    const daySum = pvzData.dailySums[d] || 0;
+                    summaryEl.innerHTML = `<strong>Сумма за</strong> ${selectedDay} <strong>число:</strong> ${daySum.toFixed(2)} ₽`;
 
-    if (isStacked) {
-      const allServices = Object.keys(pvzData.serviceCount)
-        .filter(s => pvzData.serviceCount[s] > 0)
-        .sort();
-      const stackedValues = hours.map(h => {
-        const hourKey = String(h).padStart(2, '0');
-        const hourlyDay = pvzData.hourlyServiceCount?.[d] || {};
-        const hourlyCounter = hourlyDay[hourKey] || {};
-        return allServices.map(s => hourlyCounter[s] || 0);
-      });
-		const maxY = Math.max(
-		  ...stackedValues.map(arr => arr.reduce((sum, v) => sum + v, 0)),
-		  5
-		);
-      const yMax = Math.ceil(maxY / 5) * 5;
-      renderBarChart(serviceChartEl, {
-        labels,
-        values: [],
-        yMax,
-        step: 5,
-        title: `Кол-во услуг по часам за ${selectedDay} число (с накоплением)`,
-        stacked: true,
-        stackedValues,
-        stackedLabels: allServices
-      });
-    } else {
-      let values;
-      if (selectedService === 'all') {
-        values = hours.map(h => {
-          const hourKey = String(h).padStart(2, '0');
-          const hourlyDay = pvzData.hourlyServiceCount?.[d] || {};
-          const hourly = hourlyDay[hourKey] || {};
-          return Object.values(hourly).reduce((sum, cnt) => sum + cnt, 0);
-        });
-      } else {
-        values = hours.map(h => {
-          const hourKey = String(h).padStart(2, '0');
-          const hourlyDay = pvzData.hourlyServiceCount?.[d] || {};
-          const hourly = hourlyDay[hourKey] || {};
-          return hourly[selectedService] || 0;
-        });
-      }
-      const maxY = Math.max(...values, 5);
-      const yMax = Math.ceil(maxY / 5) * 5;
-      renderBarChart(serviceChartEl, {
-        labels,
-        values,
-        yMax,
-        step: 5,
-        title: selectedService === 'all'
-          ? `Кол-во услуг по часам за ${selectedDay} число`
-          : `Кол-во "${k(selectedService)}" по часам за ${selectedDay} число`
-      });
-    }
-  }
-}
+                    const offset = getRegionOffset();
+                    const hours = Array.from({ length: 24 }, (_, i) => (i + 4) % 24);
+                    const values = hours.map(localHour => {
+                        const mskHour = ((localHour - offset + 24) % 24);
+                        const hourly = pvzData.hourlySums[d] || {};
+                        return hourly[String(mskHour).padStart(2, '0')] || 0;
+                    });
+
+                    const yMax = Math.max(500, Math.ceil(Math.max(...values, 1) / 500) * 500);
+                    renderBarChart(moneyChartEl, {
+                        labels: hours.map(h => `${h}:00`),
+                        values,
+                        yMax,
+                        step: 500,
+                        title: `Доход по часам за ${selectedDay} число`
+                    });
+                }
+
+			  // === Статистика УСЛУГ ===
+			  const accumulateCheckbox = document.getElementById(`accumulateCheckbox-${pvzId}`);
+			  accumulateCheckbox.addEventListener('change', updateView);  
+			  const isStacked = selectedService === 'all' && accumulateCheckbox?.checked;
+
+			  if (selectedDay === null) {
+				// Все дни
+				const days = Array.from({ length: lastDay }, (_, i) => i + 1);
+				const labels = days.map(d => d.toString());
+
+				if (isStacked) {
+				  const allServices = Object.keys(pvzData.serviceCount)
+					.filter(s => pvzData.serviceCount[s] > 0)
+					.sort();
+				  const stackedValues = days.map(d => {
+					const dayKey = String(d).padStart(2, '0');
+					const dailyCounter = pvzData.dailyServiceCount?.[dayKey] || {};
+					return allServices.map(s => dailyCounter[s] || 0);
+				  });
+					const maxY = Math.max(
+					  ...stackedValues.map(arr => arr.reduce((sum, v) => sum + v, 0)),
+					  5
+					);
+				  const yMax = Math.ceil(maxY / 5) * 5;
+				  renderBarChart(serviceChartEl, {
+					labels,
+					values: [],
+					yMax,
+					step: 5,
+					title: 'Кол-во услуг по дням (с накоплением)',
+					stacked: true,
+					stackedValues,
+					stackedLabels: allServices
+				  });
+				} else {
+				  let values;
+				  if (selectedService === 'all') {
+					values = days.map(d => {
+					  const dayKey = String(d).padStart(2, '0');
+					  const daily = pvzData.dailyServiceCount?.[dayKey] || {};
+					  return Object.values(daily).reduce((sum, cnt) => sum + cnt, 0);
+					});
+				  } else {
+					values = days.map(d => {
+					  const dayKey = String(d).padStart(2, '0');
+					  return pvzData.dailyServiceCount?.[dayKey]?.[selectedService] || 0;
+					});
+				  }
+				  const maxY = Math.max(...values, 5);
+				  const yMax = Math.ceil(maxY / 5) * 5;
+				  renderBarChart(serviceChartEl, {
+					labels,
+					values,
+					yMax,
+					step: 5,
+					title: selectedService === 'all' ? 'Кол-во услуг по дням (все)' : `"${k(selectedService)}" по дням`
+				  });
+				}
+			  } else {
+				// Конкретный день
+				const d = String(selectedDay).padStart(2, '0');
+				const hours = Array.from({ length: 24 }, (_, i) => (i + 4) % 24);
+				const labels = hours.map(h => `${h}:00`);
+
+				if (isStacked) {
+				  const allServices = Object.keys(pvzData.serviceCount)
+					.filter(s => pvzData.serviceCount[s] > 0)
+					.sort();
+                    const offset = getRegionOffset();
+                    const stackedValues = hours.map(localH => {
+                        const mskHour = ((localH - offset + 24) % 24);
+                        const hourKey = String(mskHour).padStart(2, '0');
+                        const hourlyDay = pvzData.hourlyServiceCount?.[d] || {};
+                        const hourlyCounter = hourlyDay[hourKey] || {};
+                        return allServices.map(s => hourlyCounter[s] || 0);
+                    });
+					const maxY = Math.max(
+					  ...stackedValues.map(arr => arr.reduce((sum, v) => sum + v, 0)),
+					  5
+					);
+				  const yMax = Math.ceil(maxY / 5) * 5;
+				  renderBarChart(serviceChartEl, {
+					labels,
+					values: [],
+					yMax,
+					step: 5,
+					title: `Кол-во услуг по часам за ${selectedDay} число (с накоплением)`,
+					stacked: true,
+					stackedValues,
+					stackedLabels: allServices
+				  });
+				} else {
+					const offset = getRegionOffset();
+					let values;
+					if (selectedService === 'all') {
+						values = hours.map(localHour => {
+						const mskHour = ((localHour - offset + 24) % 24);
+						const hourlyDay = pvzData.hourlyServiceCount?.[d] || {};
+						const hourly = hourlyDay[String(mskHour).padStart(2, '0')] || {};
+						return Object.values(hourly).reduce((sum, cnt) => sum + cnt, 0);
+						});
+					} else {
+						values = hours.map(localHour => {
+						const mskHour = ((localHour - offset + 24) % 24);
+						const hourlyDay = pvzData.hourlyServiceCount?.[d] || {};
+						const hourly = hourlyDay[String(mskHour).padStart(2, '0')] || {};
+						return hourly[selectedService] || 0;
+						});
+					}
+				  const maxY = Math.max(...values, 5);
+				  const yMax = Math.ceil(maxY / 5) * 5;
+				  renderBarChart(serviceChartEl, {
+					labels,
+					values,
+					yMax,
+					step: 5,
+					title: selectedService === 'all'
+					  ? `Кол-во услуг по часам за ${selectedDay} число`
+					  : `Кол-во "${k(selectedService)}" по часам за ${selectedDay} число`
+				  });
+				}
+			  }
+			}
 
 			updateView();    // Обновляем при старте
 
@@ -2111,6 +2350,20 @@ function updateView() {
 			  updateView();
 			  calendarPopup.style.display = 'none';
 			});
+
+            regionSel.addEventListener('change', () => {
+                const val = regionSel.value;
+				localStorage.setItem('pvz_region', val);
+                updateView();
+			});
+
+            resetBtn.addEventListener('click', () => {
+                    resetSavedFields();
+                    localStorage.removeItem('pvz_region');
+                    document.getElementById('regionSelector').value = 'MSK';
+                    closeSettingsPopup();
+                    updateView();
+            });
 
 			document.addEventListener('click', (e) => {
 			  if (!calendarPopup.contains(e.target) && e.target !== dateSelectorBtn && e.target !== dateClearBtn) {
@@ -2359,7 +2612,6 @@ function updateView() {
 				});
 			  }
 			}
-
 			// HTML-экранирование
 			function k(str) {
 			  if (!str) return str;
@@ -2367,9 +2619,11 @@ function updateView() {
 			  return str.split('').map(ch => map[ch] !== undefined ? map[ch] : ch).join('');
 			}
 			// Запуск после загрузки DOM
-			document.addEventListener('DOMContentLoaded', checkForUpdate);
+            document.addEventListener('DOMContentLoaded', function () {
+                checkForUpdate();
+                setTimeout(showUpdateHighlight, 300);
+            });
 			
-			<!-- Yandex.Metrika counter -->
 			(function(m,e,t,r,i,k,a){
 					m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
 					m[i].l=1*new Date();

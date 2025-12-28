@@ -559,16 +559,49 @@
 			</div>
 			<div class="sidebar-menu">
 				<div class="menu-item active" data-tool="rap-generator" data-title="Генератор РАПП">
-					<text>📄</text>
-					<span>Генератор РАПП</span>
+					<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+						<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+						<polyline points="14,2 14,8 20,8" />
+						<line x1="16" y1="13" x2="8" y2="13" />
+						<line x1="16" y1="17" x2="8" y2="17" />
+						<polyline points="10,9 9,9 8,9" />
+					</svg>
+					<span>⠀Генератор РАПП</span>
+				</div>
+				<div class="menu-item" data-tool="act-4-generator" data-title="Генератор Акта 4">
+					<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+						<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+						<polyline points="14,2 14,8 20,8" />
+						<line x1="16" y1="13" x2="8" y2="13" />
+						<line x1="16" y1="17" x2="8" y2="17" />
+						<polyline points="10,9 9,9 8,9" />
+					</svg>
+					<span>⠀Генератор Акта 4</span>
 				</div>
 				<div class="menu-item" data-tool="act-5-generator" data-title="Генератор Акта 5">
-					<text>📄</text>
-					<span>Генератор Акта 5</span>
+					<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+						<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+						<polyline points="14,2 14,8 20,8" />
+						<line x1="16" y1="13" x2="8" y2="13" />
+						<line x1="16" y1="17" x2="8" y2="17" />
+						<polyline points="10,9 9,9 8,9" />
+					</svg>
+					<span>⠀Генератор Акта 5</span>
 				</div>
 				<div class="menu-item" data-tool="services-act-analysis" data-title="Анализ акта услуг" style="display: none">
-					<text>🧮</text>
-					<span>Анализ акта услуг</span> 
+					<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+						<rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+						<line x1="16" y1="2" x2="16" y2="6" />
+						<line x1="8" y1="2" x2="8" y2="6" />
+						<line x1="3" y1="10" x2="21" y2="10" />
+						<circle cx="8" cy="14" r="1" />
+						<circle cx="12" cy="14" r="1" />
+						<circle cx="16" cy="14" r="1" />
+						<circle cx="8" cy="18" r="1" />
+						<circle cx="12" cy="18" r="1" />
+						<circle cx="16" cy="18" r="1" />
+					</svg>
+					<span>⠀Анализ акта услуг</span>
 				</div>
 			</div>
 		</div>
@@ -716,6 +749,12 @@
 									Распечатать
 								</button>
 							</div>
+						</div>
+					</div>
+					<!-- Генератор Акта 4 -->
+					<div class="tool-container">
+						<div class="tool-content" id="act-4-generator-content">
+							<text>Думали тут что-то будет? Фига!</text>
 						</div>
 					</div>
 					<!-- Анализатор акта услуг -->
@@ -915,7 +954,7 @@
 			</div>
 		</div>
 		<script>
-				const currentVersion = "1.2.0";
+				const currentVersion = "1.2.1";
 			document.addEventListener('DOMContentLoaded', function() {
 				const versionDisplayElement = document.getElementById('version-display');
 				if (versionDisplayElement) {
@@ -924,7 +963,8 @@
 			});
 
             const UPDATE_MESSAGES = {
-                '1.2.0': 'Добавлен выбор региона (часовой пояс) для анализа акта услуг. Графики теперь учитывают локальное время ПВЗ.'
+				'1.2.0': 'Добавлен выбор региона (часовой пояс) для анализа акта услуг. Графики теперь учитывают локальное время ПВЗ.',
+                '1.2.1': 'Новые красивые иконки'
             };
 
             const LAST_READ_VERSION_KEY = 'pvz_last_read_version';
@@ -984,12 +1024,12 @@
                 highlight.style.display = 'block';
 
                 // Привязка к элементу
-                const targetEl = document.querySelector('.header-button');
+                const targetEl = document.querySelector('.menu-item');
                 if (targetEl) {
-                    positionHighlight(targetEl, { x: -300, y: -50 });
+                    positionHighlight(targetEl, { x: 200, y: 8 });
 
 
-                    const updatePos = () => positionHighlight(targetEl, { x: -10, y: 10 });
+                    const updatePos = () => positionHighlight(targetEl, { x: 0, y: 0 });
                     window.addEventListener('scroll', updatePos, { passive: true });
                     window.addEventListener('resize', updatePos, { passive: true });
                     highlight.dataset.listeners = 'true';
@@ -1019,7 +1059,7 @@
 
 				menuItems.forEach(item => {
 				  const toolId = item.dataset.tool;
-				  if (role === 'employee' && (toolId === 'rap-generator' || toolId === 'act-5-generator')) {
+                    if (role === 'employee' && (toolId === 'rap-generator' || toolId === 'act-4-generator' || toolId === 'act-5-generator')) {
 					item.style.display = 'flex';
 				  } else if (role === 'owner' && toolId === 'services-act-analysis') {
 					item.style.display = 'flex';
@@ -1060,7 +1100,7 @@
             // --- Константы часовых поясов ---
             const REGION_OFFSETS = {
                 MSK: 0,
-                SAMARA: 1,
+                SMR: 1,
                 EKAT: 2,
                 OMSK: 3,
                 KRAS: 4,
@@ -2127,7 +2167,7 @@
 				if (deduction > 0) suffixParts.push(`Вычет Баллов: -${deduction.toFixed(2)}`);
 				if (clientReturn > 0) suffixParts.push(`Вычет за возвраты: -${clientReturn.toFixed(2)}`);
 				const suffix = suffixParts.length ? ` (${suffixParts.join(', ')})` : '';
-					summaryEl.innerHTML = `<strong>Сумма услуг:</strong> ${baseSum.toFixed(2)} ₽${suffix} 
+					summaryEl.innerHTML = `<strong>Выручка:</strong> ${baseSum.toFixed(2)} ₽${suffix} 
 						<label style="display:flex;align-items:center;gap:4px;font-size:14px;color:black;">
 							<input type="checkbox" disabled checked id="averageRevenue-${pvzId}" class="styled-checkbox" style="cursor:not-allowed;">
 							Средняя выручка
@@ -2165,7 +2205,7 @@
                 } else {
                     const d = String(selectedDay).padStart(2, '0');
                     const daySum = pvzData.dailySums[d] || 0;
-                    summaryEl.innerHTML = `<strong>Сумма за</strong> ${selectedDay} <strong>число:</strong> ${daySum.toFixed(2)} ₽`;
+                    summaryEl.innerHTML = `<strong>Выручка за</strong> ${selectedDay} <strong>число:</strong> ${daySum.toFixed(2)} ₽`;
 
                     const offset = getRegionOffset();
                     const hours = Array.from({ length: 24 }, (_, i) => (i + 4) % 24);
@@ -2552,7 +2592,7 @@
 					text.setAttribute('font-size', '12');
 					text.setAttribute('fill', 'black');
 					text.setAttribute('text-anchor', 'middle');
-					text.textContent = `Средняя выручка: ${avgLine.avg.toFixed(2)} ₽ (${avgLine.projected.toFixed(2)})`;
+					text.textContent = `${avgLine.avg.toFixed(2)} ₽ (${avgLine.projected.toFixed(2)})`;
 					g.appendChild(text);
 				  }
 				}

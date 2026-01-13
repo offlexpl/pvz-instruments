@@ -2167,7 +2167,7 @@
 				if (deduction > 0) suffixParts.push(`Вычет Баллов: -${deduction.toFixed(2)}`);
 				if (clientReturn > 0) suffixParts.push(`Вычет за возвраты: -${clientReturn.toFixed(2)}`);
 				const suffix = suffixParts.length ? ` (${suffixParts.join(', ')})` : '';
-					summaryEl.innerHTML = `<strong>Выручка:</strong> ${baseSum.toFixed(2)} ₽${suffix} 
+					summaryEl.innerHTML = `<strong>Выручка:</strong> ${baseSum.toFixed(2)}₽${suffix} 
 						<label style="display:flex;align-items:center;gap:4px;font-size:14px;color:black;">
 							<input type="checkbox" disabled checked id="averageRevenue-${pvzId}" class="styled-checkbox" style="cursor:not-allowed;">
 							Средняя выручка
@@ -2205,7 +2205,7 @@
                 } else {
                     const d = String(selectedDay).padStart(2, '0');
                     const daySum = pvzData.dailySums[d] || 0;
-                    summaryEl.innerHTML = `<strong>Выручка за</strong> ${selectedDay} <strong>число:</strong> ${daySum.toFixed(2)} ₽`;
+                    summaryEl.innerHTML = `<strong>Выручка за</strong> ${selectedDay} <strong>число:</strong> ${daySum.toFixed(2)}₽`;
 
                     const offset = getRegionOffset();
                     const hours = Array.from({ length: 24 }, (_, i) => (i + 4) % 24);
@@ -2592,7 +2592,7 @@
 					text.setAttribute('font-size', '12');
 					text.setAttribute('fill', 'black');
 					text.setAttribute('text-anchor', 'middle');
-					text.textContent = `${avgLine.avg.toFixed(2)} ₽ (${avgLine.projected.toFixed(2)})`;
+                    text.textContent = `${avgLine.avg.toFixed(2)}₽`; // (${avgLine.projected.toFixed(2)})
 					g.appendChild(text);
 				  }
 				}
@@ -2706,7 +2706,6 @@
 		</script>
 	</body>
 </html>
-
 
 
 

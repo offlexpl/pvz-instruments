@@ -153,11 +153,12 @@
 				transform: scale(0.9);
 				color: #333;
 			}
-			.header-role-selector {
-			  background: rgba(0, 0, 0, 0);
-			  border-radius: 8px;
-			  cursor: pointer;
-			}
+            .header-role-selector {
+                background: rgba(0, 0, 0, 0);
+                border-radius: 8px;
+                cursor: pointer;
+                padding-left: 10px;
+            }
 			
 			.header-role-selector select {
 				font-family: YS Display, YS Text, sans-serif;
@@ -229,6 +230,10 @@
 				margin-top: auto;
 				padding-bottom: 0px;
 			}
+            .required {
+                color: var(--error-color);
+                font-weight: bold;
+            }
 			.form-grid input {
 				padding: 15px;
 				border: 0px solid var(--border-color);
@@ -365,10 +370,9 @@
 			.additional-info-section {
 				margin-top: 15px;
 			}
-			.scan-input-row {
-				grid-column: 1 / -1;
-				margin-top: 10px;
-			}
+            .scan-input-row {
+                grid-column: 1 / -1;
+            }
 			.scan-list {
 				max-height: 217px;
 				min-height: 217px;
@@ -422,6 +426,19 @@
 			.generate-button:hover {
 				background-color: #F5C400;
 			}
+            .discrepancy-select {
+                padding: 6px 10px;
+                border-radius: 6px;
+                border: 1px solid #bdc3c7;
+                background-color: #ffffff;
+                font-size: 14px;
+                cursor: pointer;
+                min-width: 130px;
+            }
+            .discrepancy-select:focus {
+                outline: 2px solid var(--accent-color);
+                outline-offset: -1px;
+            }
 			.select-button {
 				padding: 12px 24px;
 				font-size: 15px;
@@ -632,12 +649,14 @@
 					<div class="tool-content active" id="rap-generator-content">
 						<div class="form-section">
 							<div class="form-grid">
-								<label for="actNumber">Номер акта*:</label>
-								<label for="sender">Отправитель*:</label>
-								<label for="executor">Исполнитель*:</label>
+								<label for="actNumber">Номер акта:<span class="required">*</span></label>
+								<label for="executor">Исполнитель:<span class="required">*</span></label>
+								<label for="address">Адрес ПВЗ:<span class="required">*</span></label>
 								<input type="text" id="actNumber" placeholder="✎ Порядковый номер акта" value="1" required>
-								<input type="text" id="sender" placeholder="✎ ИП\ООО владельца ПВЗ" value="">
-								<input type="text" id="executor" placeholder="✎ Яндекс Курьер" value="">
+								<input type="text" id="executor" placeholder="✎ ИП Коробкин И. И." value="">
+								<input type="text" id="address" placeholder="✎ Адрес вашего ПВЗ" value="">
+								<input type="hidden" id="courier" value="Яндекс Курьер">
+								<label for="scanInput">Номер заказа:<span class="required">*</span></label>
 								<input type="text" id="scanInput" class="scan-input-row" placeholder="Сканируйте ШК или введите номер и нажмите ENTER" maxlength="25">
 							</div>
 							<div class="scan-list" id="scanList">
@@ -656,17 +675,46 @@
 							</div>
 						</div>
 					</div>
+					<!-- Генератор Акта 4 -->
+					<div class="tool-content" id="act-4-generator-content">
+						<div class="form-section">
+							<div class="form-grid">
+								<label for="act4Reference">Номер акта:<span class="required">*</span></label>
+								<label for="executor">Исполнитель:<span class="required">*</span></label>
+								<label for="address">Адрес ПВЗ:<span class="required">*</span></label>
+								<input type="text" id="act4Reference" placeholder="✎ Номер акта приёма-передачи" value="1">
+								<input type="text" id="executor" placeholder="✎ ИП Коробкин И. И." value="">
+								<input type="text" id="address" placeholder="✎ Адрес вашего ПВЗ" value="">
+								<label for="scanInput4">Номер заказа:<span class="required">*</span></label>
+								<input type="text" id="scanInput4" class="scan-input-row" placeholder="Сканируйте ШК или введите номер и нажмите ENTER" maxlength="25">
+							</div>
+							<div class="scan-list" id="scanList4">
+								<p>Отсканированные посылки будут отображаться здесь...</p>
+							</div>
+							<div class="generate-button-container">
+								<button onclick="generateAct4()" class="generate-button" style="display: flex; align-items: center; gap: 6px;">
+									<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+										<path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+										<path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6" />
+										<path d="M10 22H14" />
+										<path d="M12 18v4" />
+									</svg>
+									Распечатать
+								</button>
+							</div>
+						</div>
+					</div>
 					<!-- Генератор Акта 5 -->
 					<div class="tool-content" id="act-5-generator-content">
 						<div class="form-section">
 							<div class="form-grid">
-								<label for="executor5">Исполнитель*:</label>
-								<label for="recipient5">Получатель*:</label>
-								<label for="address5">Адрес ПВЗ*:</label>
-								<input type="text" id="executor5" placeholder="✎ ИП/ООО владельца ПВЗ" value="">
-								<input type="text" id="recipient5" placeholder="✎ Фамилия И.О. клиента" value="">
-								<input type="text" id="address5" placeholder="✎ Адрес вашего ПВЗ" value="">
-								<label for="orderNumber5">Номер заказа*:</label>
+								<label for="recipient">Получатель:<span class="required">*</span></label>
+								<label for="executor">Исполнитель:<span class="required">*</span></label>
+								<label for="address">Адрес ПВЗ:<span class="required">*</span></label>
+								<input type="text" id="recipient" placeholder="✎ Фамилия И.О. клиента" value="">
+								<input type="text" id="executor" placeholder="✎ ИП Коробкин И. И." value="">
+								<input type="text" id="address" placeholder="✎ Адрес вашего ПВЗ" value="">
+								<label for="orderNumber5">Номер заказа:<span class="required">*</span></label>
 								<label></label>
 								<label></label>
 								<input type="text" id="orderNumber5" placeholder="✎ Номер заказа" value="">
@@ -674,10 +722,9 @@
 
 								<div></div>
 							</div>
-							<!-- Остальное содержимое акта 5 (чекбоксы и поля) — оставляем без изменений -->
 							<div class="checkbox-section">
 								<div class="checkbox-row">
-									<div class="checkbox-label">Причина составления*:</div>
+									<div class="checkbox-label">Причина составления:<span class="required">*</span></div>
 									<div class="checkbox-container">
 										<div class="checkbox-item"><input type="checkbox" id="reason1" class="styled-checkbox"><label for="reason1">повреждение вложения</label></div>
 										<div class="checkbox-item"><input type="checkbox" id="reason2" class="styled-checkbox"><label for="reason2">повреждение упаковки</label></div>
@@ -687,7 +734,7 @@
 									</div>
 								</div>
 								<div class="checkbox-row">
-									<div class="checkbox-label">Тип упаковки*:</div>
+									<div class="checkbox-label">Тип упаковки:<span class="required">*</span></div>
 									<div class="checkbox-container">
 										<div class="checkbox-item"><input type="checkbox" id="pack1" class="styled-checkbox"><label for="pack1">картонный короб</label></div>
 										<div class="checkbox-item"><input type="checkbox" id="pack2" class="styled-checkbox"><label for="pack2">пакет</label></div>
@@ -732,8 +779,8 @@
 								<textarea id="additionalInfo5" placeholder="✎ Опишите повреждения" rows="1"></textarea>
 							</div>
 							<div class="form-grid">
-								<label for="executorName5">Представитель Исполнителя*:</label>
-								<label for="executorPosition5">Должность*:</label>
+								<label for="executorName5">Представитель Исполнителя:<span class="required">*</span></label>
+								<label for="executorPosition5">Должность:<span class="required">*</span></label>
 								<label></label>
 								<input type="text" id="executorName5" placeholder="✎ Фамилия И.О. сотрудника" class="form-grid-input">
 								<input type="text" id="executorPosition5" placeholder="✎ Оператор" value="Оператор" class="form-grid-input">
@@ -749,12 +796,6 @@
 									Распечатать
 								</button>
 							</div>
-						</div>
-					</div>
-					<!-- Генератор Акта 4 -->
-					<div class="tool-container">
-						<div class="tool-content" id="act-4-generator-content">
-							<text>Тут ничего нет(🥺😢</text>
 						</div>
 					</div>
 					<!-- Анализатор акта услуг -->
@@ -954,7 +995,7 @@
 			</div>
 		</div>
 		<script>
-				const currentVersion = "1.2.1";
+				const currentVersion = "1.3.0";
 			document.addEventListener('DOMContentLoaded', function() {
 				const versionDisplayElement = document.getElementById('version-display');
 				if (versionDisplayElement) {
@@ -964,7 +1005,8 @@
 
             const UPDATE_MESSAGES = {
 				'1.2.0': 'Добавлен выбор региона (часовой пояс) для анализа акта услуг. Графики теперь учитывают локальное время ПВЗ.',
-                '1.2.1': 'Новые красивые иконки'
+				'1.2.1': 'Новые красивые иконки',
+                '1.3.0': 'Добавлена генерация Акта 4.<br><br>В генераторе РАПП убрано ненужное поле "Яндекс Курьер" и заменено на "Адрес ПВЗ".<br><br>Теперь поля "Исполнитель" и "Адрес ПВЗ" применяются ко всем актам сразу после заполнения и, как и раньше, сохраняются даже после обновления страницы.<br><br>ОБРАТИТЕ ВНИМАНИЕ, поля с красными звездочками обязательны к заполнению, без них не получится сгенерировать акт!<br><br>Сбросить сохраненные поля можно, нажав на шестеренку в правом верхнем углу, затем на кнопку "Сбросить".'
             };
 
             const LAST_READ_VERSION_KEY = 'pvz_last_read_version';
@@ -1011,7 +1053,6 @@
                 const highlight = document.getElementById('updateHighlight');
                 const textEl = document.getElementById('highlightText');
                 const closeBtn = document.getElementById('highlightClose');
-
                 const message = UPDATE_MESSAGES[currentVersion];
 
                 if (!message || message.trim() === '') return;
@@ -1020,15 +1061,14 @@
                 const highlightRead = localStorage.getItem(HIGHLIGHT_READ_KEY + currentVersion);
                 if (lastRead === currentVersion && highlightRead === 'true') return;
 
-                textEl.textContent = message;
+                // Используем innerHTML вместо textContent, чтобы работали теги <br> для абзацев
+                textEl.innerHTML = message;
                 highlight.style.display = 'block';
 
-                // Привязка к элементу
-                const targetEl = document.querySelector('.menu-item');
+                // Стандартная привязка к элементу (без центровки, как в исходном файле)
+                const targetEl = document.querySelector('.header-button');
                 if (targetEl) {
                     positionHighlight(targetEl, { x: 200, y: 8 });
-
-
                     const updatePos = () => positionHighlight(targetEl, { x: 0, y: 0 });
                     window.addEventListener('scroll', updatePos, { passive: true });
                     window.addEventListener('resize', updatePos, { passive: true });
@@ -1040,18 +1080,20 @@
                     localStorage.setItem(HIGHLIGHT_READ_KEY + currentVersion, 'true');
                     highlight.style.display = 'none';
                     if (highlight.dataset.listeners) {
+                        const updatePos = () => positionHighlight(targetEl, { x: 0, y: 0 });
                         window.removeEventListener('scroll', updatePos);
                         window.removeEventListener('resize', updatePos);
                         delete highlight.dataset.listeners;
                     }
                 };
+
                 closeBtn.onclick = null;
                 closeBtn.onclick = markAsRead;
             }
 
 						document.addEventListener('DOMContentLoaded', () => {
 			  const roleSwitcher = document.getElementById('roleSwitcher');
-			  const menuItems = document.querySelectorAll('.menu-item');
+			  const menuItems = document.querySelectorAll('.scan-listm');
 			  const toolContents = document.querySelectorAll('.tool-content');
 
 			  function updateView() {
@@ -1083,19 +1125,26 @@
 			  roleSwitcher.addEventListener('change', updateView);
 			  updateView();
 			});
-			const autosaveFields = ['sender', 'executor', 'address5', 'executor5',];
-			autosaveFields.forEach(id => {
-				const el = document.getElementById(id);
-				if (el) {
-					const saved = localStorage.getItem(`act5_${id}`);
-					if (saved !== null) {
-						el.value = saved;
-					}
-					el.addEventListener('blur', () => {
-						localStorage.setItem(`act5_${id}`, el.value);
-					});
-				}
-			});
+            const autosaveFields = ['executor', 'address'];
+
+            autosaveFields.forEach(id => {
+                const elements = document.querySelectorAll(`input[id="${id}"]`);
+                const saved = localStorage.getItem(`pvz_${id}`);
+                elements.forEach(el => {
+                    if (saved !== null) {
+                        el.value = saved;
+                    }
+                    el.addEventListener('blur', () => {
+                        const newValue = el.value;
+                        localStorage.setItem(`pvz_${id}`, newValue);
+                        elements.forEach(otherEl => {
+                            if (otherEl !== el) {
+                                otherEl.value = newValue;
+                            }
+                        });
+                    });
+                });
+            });
 
             // --- Константы часовых поясов ---
             const REGION_OFFSETS = {
@@ -1154,13 +1203,15 @@
                 document.getElementById('settingsPopup').style.display = 'none';
             }
 
-			function resetSavedFields() {
-				autosaveFields.forEach(id => {
-				localStorage.removeItem(`act5_${id}`);
-				const el = document.getElementById(id);
-				if (el) el.value = '';
-				});
-			}
+            function resetSavedFields() {
+                ['executor', 'address'].forEach(id => {
+                    localStorage.removeItem(`pvz_${id}`);
+                    const elements = document.querySelectorAll(`input[id="${id}"]`);
+                    elements.forEach(el => {
+                        el.value = '';
+                    });
+                });
+            }
 
 			function showError(title, message) {
 				const errorEl = document.getElementById('errorMessage');
@@ -1185,6 +1236,8 @@
 				'ф': 'A', 'ы': 'S', 'в': 'D', 'а': 'F', 'п': 'G', 'р': 'H', 'о': 'J', 'л': 'K', 'д': 'L', 'ж': ';', 'э': "'",
 				'я': 'Z', 'ч': 'X', 'с': 'C', 'м': 'V', 'и': 'B', 'т': 'N', 'ь': 'M', 'б': ',', 'ю': '.', 'ё': '`'
 			};
+
+            let scannedItems4 = [];
 			
 			function convertRussianToEnglish(str) {
 				return str.split('').map(char => {
@@ -1240,7 +1293,7 @@
 					}
 					if (scannedItems.length >= 20) {
 						ym(105289488,'reachGoal','ADD_ALOT')
-						showError("Слишком много посылок", "Добавить можно не более 20 посылок. Обновите страницу и отсканируйте следующие грузоместа.");
+						showError("Слишком много посылок", "Добавить можно не более 20 грузомест.");
 						return;
 					}
 					if (scanInput.length >= 108) {
@@ -1267,101 +1320,185 @@
 				scannedItems = scannedItems.filter(item => item.id !== id);
 				updateScanList();
 			}
-			
-			function generateActRAPP() {
-				const actNumber = document.getElementById('actNumber').value.trim();
-				const sender = document.getElementById('sender').value;
-				const executor = document.getElementById('executor').value;
-					if (!actNumber || !sender || !executor || scannedItems.length === 0) {
-						ym(105289488,'reachGoal','ACT_EMPTY')
-						showError("Акт пустой", "Заполните все обязательные поля и добавьте хотя бы одну посылку.");
-						return;
-					}
 
-				ym(105289488,'reachGoal','GENERATE_ACT_RAPP')
-				const today = new Date();
-				const formattedDate = `${today.getDate().toString().padStart(2, '0')}/${(today.getMonth() + 1).toString().padStart(2, '0')}/${today.getFullYear()}`;
-				const timeNow = today.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-				const pdfContent =
-	'<!DOCTYPE html>' +
-	'<html lang="ru">' +
-		'<head>' +
-		'<meta charset="UTF-8">' +
-		'<meta name="viewport" content="width=device-width, initial-scale=1.0">' +
-			'<title>Ручной акт №' + actNumber + '</title>' +
-			'<style>' +
-				'page{size:A4;margin:0;}' +
-				'body{font-family:Arial,sans-serif;margin:0;padding:20px;background:white;line-height:1.4;font-size:12px;}' +
-				'.act-container{max-width:800px;margin:0 auto;}' +
-				'.act-title{font-size:16px;font-weight:bold;margin:0 0 50px 0;text-align:center;}' +
-				'.info-row{margin:10px 0;}' +
-				'.info-label{font-weight:bold;display:inline-block;width:180px;}' +
-				'.content-text{margin:15px 0;}' +
-				'table{width:100%;border-collapse:collapse;margin:15px 0;font-size:11px;border:1px solid #000;}' +
-				'th,td{border:1px solid #000;padding:5px;text-align:left;vertical-align:top;}' +
-				'.header-row{background-color:#f2f2f2;}' +
-				'.header-row th{background-color:#f2f2f2;font-weight:bold;text-align:left;}' +
-				'.subheader-row th{font-weight:normal;text-align:left;}' +
-				'.total-row{background-color:#f2f2f2;font-weight:bold;}' +
-				'.signature-section{display:flex;justify-content:space-between;margin-top:0;padding-top:0;}' +
-				'.signature-box{width:45%;text-align:left;}' +
-				'.signature-line{margin-top:30px;border-bottom:1px solid #000;height:1px;}' +
-				'.date-footer{margin-top:20px;text-align:left;font-size:11px;}' +
-				'@media print{' +
-				'body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}' +
-				'table,.signature-section{page-break-inside:avoid;}' +
-				'}' +
-			'</style>' +
-		'</head>' +
-		'<body>' +
-			'<div class="act-container">' +
-				'<h2 class="act-title">Акт приема-передачи отправлений № ' + actNumber + ' от ' + formattedDate + '</h2>' +
-				'<div class="info-row"><span class="info-label" style="width:50mm;">Заказчик:</span> ' + CUSTOMER + '</div>' +
-				'<div class="info-row"><span class="info-label" style="width:50mm;">Отправитель:</span> ' + sender + '</div>' +
-				'<div class="info-row"><span class="info-label" style="width:50mm;">Исполнитель (Субподрядчик):</span> ' + executor + '</div>' +
-				'<div class="content-text">' +
-					'Настоящий акт составлен о том, что в указанную выше дату (дата приема Отправления) Отправитель передал, а Исполнитель (субподрядчик) принял следующие Грузоместа, подлежащие передаче Получателю:' +
-				'</div>' +
-				'<table>' +
-					'<thead>' +
-						'<tr class="header-row"><th colspan="1" style="width:20mm">Ячейка</th><th colspan="4">DROP</th></tr>' +
-						'<tr class="subheader-row">' +
-							'<th>№ п/п</th>' +
-							'<th style="width:40mm;">Код грузоместа</th>' +
-							'<th>№ Отправления в системе заказчика</th>' +
-							'<th>№ Отправления в системе Исполнителя (Субподрядчика)</th>' +
-							'<th>Объявленная ценность заказа, руб.</th>' +
-						'</tr>' +
-					'</thead>' +
-					'<tbody>' +
-						scannedItems.map(function(item, index) {
-							return '<tr><td>' + (index + 1) + '</td><td>' + item.code + '</td><td>' + item.customerSystem + '</td><td>' + item.executorSystem + '</td><td>' + item.declaredValue + '</td></tr>';
-						}).join('') +
-						'<tr class="total-row">' +
-							'<td>Итого</td>' +
-							'<td>' + scannedItems.length + '</td>' +
-							'<td>' + scannedItems.length + '</td>' +
-							'<td>' + scannedItems.length + '</td>' +
-							'<td>' + scannedItems.reduce(function(sum, item) { return sum + parseFloat(item.declaredValue); }, 0).toFixed(2) + '</td>' +
-						'</tr>' +
-					'</tbody>' +
-				'</table>' +
-				'<div class="signature-section">' +
-					'<div class="signature-box">' +
-						'<p>Отправления передал (Отправитель):</p>' +
-						'<div class="signature-line"></div>' +
-						'<p>(Подпись) / (Расшифровка)</p>' +
-					'</div>' +
-					'<div class="signature-box">' +
-						'<p>Отправления принял Исполнитель (Субподрядчик):</p>' +
-						'<div class="signature-line"></div>' +
-						'<p>(Подпись) / (Расшифровка)</p>' +
-					'</div>' +
-				'</div>' +
-				'<div class="date-footer">' + formattedDate + ' ' + timeNow + '</div>' +
-			'</div>' +
-		'</body>' +
-	'</html>';
+            function updateScanList4() {
+                const scanList = document.getElementById('scanList4');
+                scanList.innerHTML = '';
+                if (scannedItems4.length === 0) {
+                    const placeholder = document.createElement('p');
+                    placeholder.textContent = 'Посылки будут отображаться здесь после сканирования...';
+                    placeholder.style.textAlign = 'center';
+                    placeholder.style.paddingTop = '80px';
+                    placeholder.style.fontSize = '24px';
+                    placeholder.style.color = '#757575';
+                    scanList.appendChild(placeholder);
+                    return;
+                }
+                scannedItems4.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'scan-item';
+
+                    const leftDiv = document.createElement('div');
+                    leftDiv.style.display = 'flex';
+                    leftDiv.style.alignItems = 'center';
+                    leftDiv.style.gap = '10px';
+                    leftDiv.style.flexGrow = '1';
+
+                    const span = document.createElement('span');
+                    span.textContent = `${item.id}. ${item.code}`;
+                    span.style.flexGrow = '1';
+                    span.style.textAlign = 'left';
+
+                    const select = document.createElement('select');
+                    select.className = 'discrepancy-select';
+                    select.innerHTML = `
+            <option value="Недостача" ${item.discrepancy === 'Недостача' ? 'selected' : ''}>Недостача</option>
+            <option value="Излишек" ${item.discrepancy === 'Излишек' ? 'selected' : ''}>Излишек</option>
+            <option value="Повреждение" ${item.discrepancy === 'Повреждение' ? 'selected' : ''}>Повреждение</option>
+        `;
+                    select.addEventListener('change', (e) => {
+                        item.discrepancy = e.target.value;
+                    });
+
+                    leftDiv.appendChild(span);
+                    leftDiv.appendChild(select);
+
+                    const button = document.createElement('button');
+                    button.textContent = 'Х';
+                    button.className = 'remove-scan-btn';
+                    button.addEventListener('click', () => removeScan4(item.id));
+
+                    div.appendChild(leftDiv);
+                    div.appendChild(button);
+                    scanList.appendChild(div);
+                });
+            }
+
+            function addScan4() {
+                const scanInput = document.getElementById('scanInput4');
+                let value = scanInput.value.trim();
+                if (!value) {
+                    showError("Нечего добавлять", "Введите номер отправления.");
+                    return;
+                }
+                if (scannedItems4.length >= 17) {
+                    showError("Слишком много посылок", "Добавить можно не более 17 грузомест.");
+                    return;
+                }
+                value = convertRussianToEnglish(value);
+                const newItem = {
+                    id: scannedItems4.length + 1,
+                    code: value,
+                    discrepancy: 'Недостача'
+                };
+                scannedItems4.push(newItem);
+                updateScanList4();
+                scanInput.value = '';
+                scanInput.focus();
+                hideError();
+            }
+
+            function removeScan4(id) {
+                scannedItems4 = scannedItems4.filter(item => item.id !== id);
+                scannedItems4.forEach((item, index) => { item.id = index + 1; });
+                updateScanList4();
+            }
+			
+            function generateActRAPP() {
+                const actNumber = document.getElementById('actNumber').value.trim();
+                const executor = document.getElementById('executor').value.trim();
+                const address = document.getElementById('address').value.trim();
+                const courier = document.getElementById('courier').value.trim();
+
+                if (!actNumber || !executor || !address || scannedItems.length === 0) {
+                    ym(105289488, 'reachGoal', 'ACT_EMPTY')
+                    showError("Акт пустой", "Заполните все обязательные поля и добавьте хотя бы одну посылку.");
+                    return;
+                }
+                ym(105289488, 'reachGoal', 'GENERATE_ACT_RAPP')
+                const today = new Date();
+                const formattedDate = `${today.getDate().toString().padStart(2, '0')}/${(today.getMonth() + 1).toString().padStart(2, '0')}/${today.getFullYear()}`;
+                const timeNow = today.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                const pdfContent =
+                    '<!DOCTYPE html>' +
+                    '<html lang="ru">' +
+                    '<head>' +
+                    '<meta charset="UTF-8">' +
+                    '<meta name="viewport" content="width=device-width, initial-scale=1.0">' +
+                    '<title>Ручной акт №' + actNumber + '</title>' +
+                    '<style>' +
+                    'page{size:A4;margin:0;}' +
+                    'body{font-family:Arial,sans-serif;margin:0;padding:20px;background:white;line-height:1.4;font-size:12px;}' +
+                    '.act-container{max-width:800px;margin:0 auto;}' +
+                    '.act-title{font-size:16px;font-weight:bold;margin:0 0 50px 0;text-align:center;}' +
+                    '.info-row{margin:10px 0;}' +
+                    '.info-label{font-weight:bold;display:inline-block;width:180px;}' +
+                    '.content-text{margin:15px 0;}' +
+                    'table{width:100%;border-collapse:collapse;margin:15px 0;font-size:11px;border:1px solid #000;}' +
+                    'th,td{border:1px solid #000;padding:5px;text-align:left;vertical-align:top;}' +
+                    '.header-row{background-color:#f2f2f2;}' +
+                    '.header-row th{background-color:#f2f2f2;font-weight:bold;text-align:left;}' +
+                    '.subheader-row th{font-weight:normal;text-align:left;}' +
+                    '.total-row{background-color:#f2f2f2;font-weight:bold;}' +
+                    '.signature-section{display:flex;justify-content:space-between;margin-top:0;padding-top:0;}' +
+                    '.signature-box{width:45%;text-align:left;}' +
+                    '.signature-line{margin-top:30px;border-bottom:1px solid #000;height:1px;}' +
+                    '.date-footer{margin-top:20px;text-align:left;font-size:11px;}' +
+                    '@media print{' +
+                    'body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}' +
+                    'table,.signature-section{page-break-inside:avoid;}' +
+                    '}' +
+                    '</style>' +
+                    '</head>' +
+                    '<body>' +
+                    '<div class="act-container">' +
+                    '<h2 class="act-title">Акт приема-передачи отправлений № ' + actNumber + ' от ' + formattedDate + '</h2>' +
+                    '<div class="info-row"><span class="info-label" style="width:50mm;">Заказчик:</span> ' + CUSTOMER + '</div>' +
+                    '<div class="info-row"><span class="info-label" style="width:50mm;">Отправитель:</span> ' + executor + ', ' + address + '</div>' +
+                    '<div class="info-row"><span class="info-label" style="width:50mm;">Исполнитель (Субподрядчик):</span> ' + courier + '</div>' +
+                    '<div class="content-text">' +
+                    'Настоящий акт составлен о том, что в указанную выше дату (дата приема Отправления) Отправитель передал, а Исполнитель (субподрядчик) принял следующие Грузоместа, подлежащие передаче Получателю:' +
+                    '</div>' +
+                    '<table>' +
+                    '<thead>' +
+                    '<tr class="header-row"><th colspan="1" style="width:20mm">Ячейка</th><th colspan="4">DROP</th></tr>' +
+                    '<tr class="subheader-row">' +
+                    '<th>№ п/п</th>' +
+                    '<th style="width:40mm;">Код грузоместа</th>' +
+                    '<th>№ Отправления в системе заказчика</th>' +
+                    '<th>№ Отправления в системе Исполнителя (Субподрядчика)</th>' +
+                    '<th>Объявленная ценность заказа, руб.</th>' +
+                    '</tr>' +
+                    '</thead>' +
+                    '<tbody>' +
+                    scannedItems.map(function (item, index) {
+                        return '<tr><td>' + (index + 1) + '</td><td>' + item.code + '</td><td>' + item.customerSystem + '</td><td>' + item.executorSystem + '</td><td>' + item.declaredValue + '</td></tr>';
+                    }).join('') +
+                    '<tr class="total-row">' +
+                    '<td>Итого</td>' +
+                    '<td>' + scannedItems.length + '</td>' +
+                    '<td>' + scannedItems.length + '</td>' +
+                    '<td>' + scannedItems.length + '</td>' +
+                    '<td>' + scannedItems.reduce(function (sum, item) { return sum + parseFloat(item.declaredValue); }, 0).toFixed(2) + '</td>' +
+                    '</tr>' +
+                    '</tbody>' +
+                    '</table>' +
+                    '<div class="signature-section">' +
+                    '<div class="signature-box">' +
+                    '<p>Отправления передал (Отправитель):</p>' +
+                    '<div class="signature-line"></div>' +
+                    '<p>(Подпись) / (Расшифровка)</p>' +
+                    '</div>' +
+                    '<div class="signature-box">' +
+                    '<p>Отправления принял Исполнитель (Субподрядчик):</p>' +
+                    '<div class="signature-line"></div>' +
+                    '<p>(Подпись) / (Расшифровка)</p>' +
+                    '</div>' +
+                    '</div>' +
+                    '<div class="date-footer">' + formattedDate + ' ' + timeNow + '</div>' +
+                    '</div>' +
+                    '</body>' +
+                    '</html>';
 				const pdfWindow = window.open('', '_blank');
 				pdfWindow.document.open();
 				pdfWindow.document.write(pdfContent);
@@ -1378,11 +1515,137 @@
 				setTimeout(() => successEl.classList.add('hidden'), 5000);
 			}
 
+            function generateAct4() {
+                const act4Reference = document.getElementById('act4Reference').value.trim();
+                const executor = document.getElementById('executor').value.trim();
+                const address = document.getElementById('address').value.trim();
+
+                if (!act4Reference || !executor || !address || scannedItems4.length === 0) {
+                    showError("Акт пустой", "Заполните все обязательные поля и добавьте хотя бы одну посылку.");
+                    return;
+                }
+
+                const today = new Date();
+                const formattedDate = `${today.getDate().toString().padStart(2, '0')}.${(today.getMonth() + 1).toString().padStart(2, '0')}.${today.getFullYear()}`;
+
+                // Формируем итоговую строку для заголовка акта
+                const actReferenceText = `к акту приёма-передачи № ${act4Reference} от «_____» ______________ 20____ г.`;
+
+                const shortageCount = scannedItems4.filter(i => i.discrepancy === 'Недостача').length;
+                const surplusCount = scannedItems4.filter(i => i.discrepancy === 'Излишек').length;
+                const damageCount = scannedItems4.filter(i => i.discrepancy === 'Повреждение').length;
+
+                const tableRows = scannedItems4.map((item, index) => {
+                    return `
+					<tr>
+					<td style="border:1px solid #000; padding:4px; text-align:center;">${index + 1}</td>
+					<td style="border:1px solid #000; padding:4px;">${item.code}</td>
+					<td style="border:1px solid #000; padding:4px;">${item.code}</td>
+					<td style="border:1px solid #000; padding:4px;">${item.code}</td>
+					<td style="border:1px solid #000; padding:4px;">${item.discrepancy}</td>
+					<td style="border:1px solid #000; padding:4px; text-align:center;">1</td>
+					</tr>`;
+						}).join('');
+
+						const pdfContent = `<!DOCTYPE html>
+					<html lang="ru">
+					<head>
+					<meta charset="UTF-8">
+					<title>Акт об установленном расхождении</title>
+					<style>
+					body { font-family: Arial, sans-serif; margin: 20px; font-size: 12px; line-height: 1.4; }
+					.act-container { max-width: 800px; margin: 0 auto; }
+					.act-title { font-size: 14px; font-weight: bold; text-align: center; margin-bottom: 20px; }
+					.info-row { margin: 10px 0; display: flex; }
+					.info-label { font-weight: bold; width: 380px; }
+					table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 11px; }
+					th, td { border: 1px solid #000; padding: 5px; text-align: left; vertical-align: top; }
+					th { background-color: #f2f2f2; font-weight: bold; text-align: center; }
+					.totals { margin-top: 20px; font-weight: bold; }
+					.totals-row { display: flex; justify-content: space-between; margin: 5px 0; max-width: 400px; }
+					.signature-section { display: flex; justify-content: space-between; margin-top: 40px; }
+					.signature-box { width: 45%; text-align: left; }
+					.signature-line { margin-top: 30px; border-bottom: 1px solid #000; height: 1px; }
+					@media print {
+					body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+					table { page-break-inside: avoid; }
+					}
+					</style>
+					</head>
+					<body>
+					<div class="act-container">
+					<h2 class="act-title">Акт об установленном расхождении<br>${actReferenceText}</h2>
+					<div class="info-row"><span class="info-label">Заказчик:</span> <span>${CUSTOMER}</span></div>
+					<div class="info-row"><span class="info-label">Исполнитель:</span> <span>${executor}</span></div>
+					<div class="info-row"><span class="info-label">Дата прибытия Отправлений на склад Исполнителя:</span> <span>${formattedDate}</span></div>
+					<div class="info-row"><span class="info-label">по адресу:</span> <span>${address}</span></div>
+					<div class="info-row"><span class="info-label">Дата начала обработки Отправлений:</span> <span>${formattedDate}</span></div>
+					<div class="info-row"><span class="info-label">Дата окончания обработки Отправлений:</span> <span>${formattedDate}</span></div>
+
+					<div style="margin: 20px 0; font-weight: bold;">При приеме/передаче Отправлений выявлены расхождения:</div>
+
+					<table>
+					<thead>
+						<tr>
+							<th style="width: 5%;">№ п/п</th>
+							<th style="width: 20%;">№ Отправления в системе Заказчика</th>
+							<th style="width: 20%;">№ ШК (штрих-код), присвоенный системой Заказчика</th>
+							<th style="width: 20%;">№ Отправления в системе Исполнителя (Субподрядчика)</th>
+							<th style="width: 20%;">Вид расхождения (недостача, излишек, поврежденное отправление)</th>
+							<th style="width: 15%;">Количество грузовых мест, шт.</th>
+						</tr>
+					</thead>
+					<tbody>
+						${tableRows}
+					</tbody>
+					</table>
+
+					<div class="totals">
+					<div class="totals-row"><span>Итого (недостача отправлений):</span> <span>${shortageCount}</span></div>
+					<div class="totals-row"><span>Итого (излишки отправлений):</span> <span>${surplusCount}</span></div>
+					<div class="totals-row"><span>Итого (поврежденных отправлений):</span> <span>${damageCount}</span></div>
+					</div>
+
+					<div style="margin-top: 30px; font-weight: bold;">Настоящий акт составлен в 2-х экземплярах в присутствии следующих лиц:</div>
+
+					<div class="signature-section">
+					<div class="signature-box">
+						<p>Исполнитель:</p>
+						<div class="signature-line"></div>
+						<p style="font-size: 10px; margin-top: 5px;">Фамилия И.О. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Подпись &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Должность</p>
+					</div>
+					<div class="signature-box">
+						<p>Заказчик:</p>
+						<div class="signature-line"></div>
+						<p style="font-size: 10px; margin-top: 5px;">Фамилия И.О. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Подпись &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Должность</p>
+					</div>
+					</div>
+					</div>
+					</body>
+					</html>`;
+
+						const pdfWindow = window.open('', '_blank');
+						pdfWindow.document.open();
+						pdfWindow.document.write(pdfContent);
+						pdfWindow.document.close();
+						pdfWindow.addEventListener('load', () => {
+							setTimeout(() => {
+								if (typeof pdfWindow.print === 'function') {
+									pdfWindow.print();
+								}
+							}, 100);
+						});
+
+						const successEl = document.getElementById('successMessage');
+						successEl.classList.remove('hidden');
+						setTimeout(() => successEl.classList.add('hidden'), 5000);
+					}
+
 			function generateAct5() {
 				const sender = "ООО «Яндекс Маркет»";
-				const executor = document.getElementById('executor5').value.trim() || '—';
-				const recipient = document.getElementById('recipient5').value.trim() || '—';
-				const address = document.getElementById('address5').value.trim() || '—';
+				const executor = document.getElementById('executor').value.trim() || '—';
+				const recipient = document.getElementById('recipient').value.trim() || '—';
+				const address = document.getElementById('address').value.trim() || '—';
 				const orderNumber = document.getElementById('orderNumber5').value.trim() || '—';
 				const reasons = {
 					reason1: document.getElementById('reason1').checked,
@@ -1723,7 +1986,8 @@
 			}
 
 			document.addEventListener('DOMContentLoaded', () => {document.getElementById('scanInput').focus();});
-			document.getElementById('scanInput').addEventListener('keypress', e => {if (e.key === 'Enter') addScan();});
+			document.getElementById('scanInput').addEventListener('keypress', e => { if (e.key === 'Enter') addScan(); });
+            document.getElementById('scanInput4').addEventListener('keypress', e => { if (e.key === 'Enter') addScan4(); });
 			document.querySelectorAll('.menu-item').forEach(item => {
 				item.addEventListener('click', () => {
 					document.querySelectorAll('.menu-item').forEach(mi => mi.classList.remove('active'));

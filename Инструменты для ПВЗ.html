@@ -389,24 +389,36 @@
 				font-size: 24px;
 				color: #757575;
 			}
-			.scan-item {
-				padding: 8px;
-				margin: 5px 0;
-				background-color: rgba(148, 204, 90, 0.2);
-				border-radius: 10px;
-				display: flex;
-				justify-content: space-between;
-				align-items: center;
-			}
-			.scan-item button {
-				background-color: var(--error-color);
-				padding: 4px 8px;
-				border: none;
-				border-radius: 4px;
-				font-size: 12px;
-				color: white;
-				cursor: pointer;
-			}
+            .scan-item {
+                display: flex;
+                align-items: stretch;
+                gap: 5px;
+                margin: 5px 0;
+                width: 100%;
+            }
+            .scan-order {
+                flex: 1;
+                min-width: 0;
+                padding: 8px;
+                background-color: rgba(148, 204, 90, 0.2);
+                border-radius: 10px;
+                text-align: left;
+                display: flex;
+                align-items: center;
+            }
+            .scan-item button {
+                flex-shrink: 0;
+                background-color: var(--error-color);
+                padding: 4px 12px;
+                border: none;
+                border-radius: 10px;
+                font-size: 12px;
+                color: white;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
 			.scan-item button:hover {
 				background-color: var(--error-color-hover);
 			}
@@ -428,9 +440,9 @@
 			}
             .discrepancy-select {
                 padding: 6px 10px;
-                border-radius: 6px;
-                border: 1px solid #bdc3c7;
-                background-color: #ffffff;
+                border-radius: 10px;
+                border: 0px;
+                background-color: rgba(148, 204, 90, 0.2);
                 font-size: 14px;
                 cursor: pointer;
                 min-width: 130px;
@@ -682,7 +694,7 @@
 								<label for="act4Reference">Номер акта:<span class="required">*</span></label>
 								<label for="executor">Исполнитель:<span class="required">*</span></label>
 								<label for="address">Адрес ПВЗ:<span class="required">*</span></label>
-								<input type="text" id="act4Reference" placeholder="✎ Номер акта приёма-передачи" value="1">
+								<input type="text" id="act4Reference" placeholder="✎ Номер акта приёма-передачи" >
 								<input type="text" id="executor" placeholder="✎ ИП Коробкин И. И." value="">
 								<input type="text" id="address" placeholder="✎ г. Москва, ул. Льва Толстого, д. 16" value="">
 								<label for="scanInput4">Номер заказа:<span class="required">*</span></label>
@@ -708,10 +720,10 @@
 					<div class="tool-content" id="act-5-generator-content">
 						<div class="form-section">
 							<div class="form-grid">
-								<label for="recipient">Получатель:<span class="required">*</span></label>
+								<label for="recipient">Получатель:</label>
 								<label for="executor">Исполнитель:<span class="required">*</span></label>
 								<label for="address">Адрес ПВЗ:<span class="required">*</span></label>
-								<input type="text" id="recipient" placeholder="✎ Фамилия И.О. клиента" value="">
+								<input type="text" id="recipient" placeholder="✎ Иванов И. И." value="">
 								<input type="text" id="executor" placeholder="✎ ИП Коробкин И. И." value="">
 								<input type="text" id="address" placeholder="✎ г. Москва, ул. Льва Толстого, д. 16" value="">
 								<label for="orderNumber5">Номер заказа:<span class="required">*</span></label>
@@ -995,7 +1007,7 @@
 			</div>
 		</div>
 		<script>
-				const currentVersion = "1.3.0";
+				const currentVersion = "1.3.1";
 			document.addEventListener('DOMContentLoaded', function() {
 				const versionDisplayElement = document.getElementById('version-display');
 				if (versionDisplayElement) {
@@ -1006,8 +1018,9 @@
             const UPDATE_MESSAGES = {
 				'1.2.0': 'Добавлен выбор региона (часовой пояс) для анализа акта услуг. Графики теперь учитывают локальное время ПВЗ.',
 				'1.2.1': 'Новые красивые иконки',
-                '1.3.0': 'Добавлена генерация Акта 4.<br><br>В генераторе РАПП убрано ненужное поле "Яндекс Курьер" и заменено на "Адрес ПВЗ".<br><br>Теперь поля "Исполнитель" и "Адрес ПВЗ" применяются ко всем актам сразу после заполнения и, как и раньше, сохраняются даже после обновления страницы.<br><br>ОБРАТИТЕ ВНИМАНИЕ, поля с красными звездочками обязательны к заполнению, без них не получится сгенерировать акт!<br><br>Сбросить сохраненные поля можно, нажав на шестеренку в правом верхнем углу, затем на кнопку "Сбросить".'
-            };
+                '1.3.0': 'Добавлена генерация Акта 4.<br><br>В генераторе РАПП убрано ненужное поле "Яндекс Курьер" и заменено на "Адрес ПВЗ".<br><br>Теперь поля "Исполнитель" и "Адрес ПВЗ" применяются ко всем актам сразу после заполнения и, как и раньше, сохраняются даже после обновления страницы.<br><br>ОБРАТИТЕ ВНИМАНИЕ, поля с красными звездочками обязательны к заполнению, без них не получится сгенерировать акт!<br><br>Сбросить сохраненные поля можно, нажав на шестеренку в правом верхнем углу, затем на кнопку "Сбросить".',
+				'1.3.1': 'Косметическое обновление интерфейса. <br><br>!ОБРАТИТЕ ВНИМАНИЕ! <br><br>Поля с красными звездочками обязательны к заполнению, без них не получится сгенерировать акт!'
+			};
 
             const LAST_READ_VERSION_KEY = 'pvz_last_read_version';
 			const HIGHLIGHT_READ_KEY = 'pvz_highlight_read_v';
@@ -1251,37 +1264,41 @@
 				}).join('');
 			}
 			
-			function updateScanList() {
-				const scanList = document.getElementById('scanList');
-				scanList.innerHTML = '';
-				if (scannedItems.length === 0) {
-					const placeholder = document.createElement('p');
-					placeholder.textContent = 'Посылки будут отображаться здесь после сканирования...';
-					placeholder.style.textAlign = 'center';
-					placeholder.style.paddingTop = '80px';
-					placeholder.style.fontSize = '24px';
-					placeholder.style.color = '#757575';
-					scanList.appendChild(placeholder);
-					return;
-				}
+            function updateScanList() {
+                const scanList = document.getElementById('scanList');
+                scanList.innerHTML = '';
 
-				scannedItems.forEach(item => {
-					const div = document.createElement('div');
-					div.className = 'scan-item';
+                if (scannedItems.length === 0) {
+                    const placeholder = document.createElement('p');
+                    placeholder.textContent = 'Посылки будут отображаться здесь после сканирования...';
+                    placeholder.style.textAlign = 'center';
+                    placeholder.style.paddingTop = '80px';
+                    placeholder.style.fontSize = '24px';
+                    placeholder.style.color = '#757575';
+                    scanList.appendChild(placeholder);
+                    return;
+                }
 
-					const span = document.createElement('span');
-					span.textContent = `${item.id}. ${item.code}`;
+                scannedItems.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'scan-item';
 
-					const button = document.createElement('button');
-					button.textContent = 'Х';
-					button.className = 'remove-scan-btn';
-					button.addEventListener('click', () => removeScan(item.id));
+                    // Поле с номером заказа
+                    const orderNumber = document.createElement('div');
+                    orderNumber.className = 'scan-order';
+                    orderNumber.textContent = `${item.id}. ${item.code}`;
 
-					div.appendChild(span);
-					div.appendChild(button);
-					scanList.appendChild(div);
-				});
-			}
+                    // Кнопка удаления
+                    const button = document.createElement('button');
+                    button.textContent = 'Х';
+                    button.className = 'remove-scan-btn';
+                    button.addEventListener('click', () => removeScan(item.id));
+
+                    div.appendChild(orderNumber);
+                    div.appendChild(button);
+                    scanList.appendChild(div);
+                });
+            }
 			
 			function addScan() {
 				const scanInput = document.getElementById('scanInput');
@@ -1316,14 +1333,21 @@
 				hideError();
 			}
 			
-			function removeScan(id) {
-				scannedItems = scannedItems.filter(item => item.id !== id);
-				updateScanList();
-			}
+            function removeScan(id) {
+                scannedItems = scannedItems.filter(item => item.id !== id);
+
+                // Перенумеровываем оставшиеся посылки
+                scannedItems.forEach((item, index) => {
+                    item.id = index + 1;
+                });
+
+                updateScanList();
+            }
 
             function updateScanList4() {
                 const scanList = document.getElementById('scanList4');
                 scanList.innerHTML = '';
+
                 if (scannedItems4.length === 0) {
                     const placeholder = document.createElement('p');
                     placeholder.textContent = 'Посылки будут отображаться здесь после сканирования...';
@@ -1334,21 +1358,17 @@
                     scanList.appendChild(placeholder);
                     return;
                 }
+
                 scannedItems4.forEach(item => {
                     const div = document.createElement('div');
                     div.className = 'scan-item';
 
-                    const leftDiv = document.createElement('div');
-                    leftDiv.style.display = 'flex';
-                    leftDiv.style.alignItems = 'center';
-                    leftDiv.style.gap = '10px';
-                    leftDiv.style.flexGrow = '1';
+                    // Номер заказа
+                    const orderNumber = document.createElement('div');
+                    orderNumber.className = 'scan-order';
+                    orderNumber.textContent = `${item.id}. ${item.code}`;
 
-                    const span = document.createElement('span');
-                    span.textContent = `${item.id}. ${item.code}`;
-                    span.style.flexGrow = '1';
-                    span.style.textAlign = 'left';
-
+                    // Тип расхождения
                     const select = document.createElement('select');
                     select.className = 'discrepancy-select';
                     select.innerHTML = `
@@ -1356,20 +1376,21 @@
             <option value="Излишек" ${item.discrepancy === 'Излишек' ? 'selected' : ''}>Излишек</option>
             <option value="Повреждение" ${item.discrepancy === 'Повреждение' ? 'selected' : ''}>Повреждение</option>
         `;
+
                     select.addEventListener('change', (e) => {
                         item.discrepancy = e.target.value;
                     });
 
-                    leftDiv.appendChild(span);
-                    leftDiv.appendChild(select);
-
+                    // Кнопка удаления
                     const button = document.createElement('button');
                     button.textContent = 'Х';
                     button.className = 'remove-scan-btn';
                     button.addEventListener('click', () => removeScan4(item.id));
 
-                    div.appendChild(leftDiv);
+                    div.appendChild(orderNumber);
+                    div.appendChild(select);
                     div.appendChild(button);
+
                     scanList.appendChild(div);
                 });
             }

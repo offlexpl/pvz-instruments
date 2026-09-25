@@ -77,7 +77,14 @@
 			align-items: center;
 			gap: 5px;
 		}
-
+        .sidebar-menu-bottom {
+            width: 260px;
+            flex: 1;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            box-sizing: border-box;
+        }
 		.menu-item {
 			width: 95%;
 			max-width: 250px;
@@ -709,16 +716,21 @@
 					</svg>
 					<span>⠀Анализ акта услуг</span>
 				</div>
-				<!-- Yandex.RTB R-A-20111301-1 -->
-				<div id="yandex_rtb_R-A-20111301-1"></div>
-				<script>
-					window.yaContextCb.push(() => {
-						Ya.Context.AdvManager.render({
-							"blockId": "R-A-20111301-1",
-							"renderTo": "yandex_rtb_R-A-20111301-1"
-						})
-					})
-				</script>
+				<div class="sidebar-menu-bottom">
+					<div>
+						<!-- Yandex.RTB R-A-20111301-1 -->
+						<div id="yandex_rtb_R-A-20111301-1"></div>
+						<script>
+							window.yaContextCb.push(() => {
+								Ya.Context.AdvManager.render({
+									"blockId": "R-A-20111301-1",
+									"renderTo": "yandex_rtb_R-A-20111301-1"
+								})
+							})
+						</script>
+					</div>
+				</div>
+
 			</div>
 		</div>
 <!-- Главная страница -->

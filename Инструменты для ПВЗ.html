@@ -62,12 +62,12 @@
 			background-color: var(--sidebar-bg);
 		}
 
-			.sidebar-header span {
-				font-weight: normal;
-				font-size: 30px;
-				text-align: center;
-				color: white
-			}
+		.sidebar-header span {
+			font-weight: normal;
+			font-size: 30px;
+			text-align: center;
+			color: white
+		}
 
 		.sidebar-menu {
 			padding: 20px 0;
@@ -84,7 +84,7 @@
             max-height: 450px;
             flex: 1;
             display: flex;
-            align-items: center;
+            align-items: flex-end;
             justify-content: center;
             box-sizing: border-box;
         }
@@ -106,38 +106,38 @@
 			max-height: 45px;
 		}
 
-			.menu-item:hover {
-				background-color: var(--hover-color);
-				border-radius: 10px;
-				max-width: 250px;
-				max-height: 45px;
-			}
+		.menu-item:hover {
+			background-color: var(--hover-color);
+			border-radius: 10px;
+			max-width: 250px;
+			max-height: 45px;
+		}
 
-			.menu-item.active {
-				background-color: transparent;
-				color: var(--accent-color);
-			}
+		.menu-item.active {
+			background-color: transparent;
+			color: var(--accent-color);
+		}
 
-				.menu-item.active:hover {
-					background-color: var(--hover-color);
-					color: var(--accent-color);
-				}
+		.menu-item.active:hover {
+			background-color: var(--hover-color);
+			color: var(--accent-color);
+		}
 
-			.menu-item i {
-				margin-right: 10px;
-				width: 20px;
-				text-align: center;
-			}
+		.menu-item i {
+			margin-right: 10px;
+			width: 20px;
+			text-align: center;
+		}
 
-			.menu-item text {
-				font-size: 22px;
-				padding: 0 10px 5px 0;
-			}
+		.menu-item text {
+			font-size: 22px;
+			padding: 0 10px 5px 0;
+		}
 
-			.menu-item span {
-				flex-grow: 1;
-				font-weight: bold;
-			}
+		.menu-item span {
+			flex-grow: 1;
+			font-weight: bold;
+		}
 		/* Main Content */
 		.main-content {
 			flex-grow: 1;
@@ -183,10 +183,10 @@
 			text-shadow: 0 0 1px rgba(0,0,0,0.2);
 		}
 
-			.header-button:active {
-				transform: scale(0.9);
-				color: #333;
-			}
+		.header-button:active {
+			transform: scale(0.9);
+			color: #333;
+		}
 
 		.header-role-selector {
 			background: rgba(0, 0, 0, 0);
@@ -195,28 +195,28 @@
 			padding-left: 10px;
 		}
 
-			.header-role-selector select {
-				font-family: YS Display, YS Text, sans-serif;
-				font-size: 16px;
-				background: #F0F1F3;
-				border-radius: 8px;
-				cursor: pointer;
-				border: 0px;
-				height: 48px;
-				width: 360px;
-				padding-right: 10px;
-				padding-left: 10px;
-			}
+		.header-role-selector select {
+			font-family: YS Display, YS Text, sans-serif;
+			font-size: 16px;
+			background: #F0F1F3;
+			border-radius: 8px;
+			cursor: pointer;
+			border: 0px;
+			height: 48px;
+			width: 360px;
+			padding-right: 10px;
+			padding-left: 10px;
+		}
 
-			.header-role-selector:hover select {
-				background: #E6E3E6;
-			}
+		.header-role-selector:hover select {
+			background: #E6E3E6;
+		}
 
-			.header-role-selector:focus select {
-				background: white;
-				border-radius: 8px;
-				border-color: #F5C400;
-			}
+		.header-role-selector:focus select {
+			background: white;
+			border-radius: 8px;
+			border-color: #F5C400;
+		}
 
 		.reset-button {
 			width: 100%;
@@ -228,10 +228,10 @@
 			font-weight: bold;
 		}
 
-			.reset-button:hover {
-				background: #D7D7D7;
-				cursor: pointer;
-			}
+		.reset-button:hover {
+			background: #D7D7D7;
+			cursor: pointer;
+		}
 
 		.page-content {
 			padding: 30px 20px 0 8px;
@@ -263,13 +263,13 @@
 			align-items: end;
 		}
 
-			.form-grid label {
-				text-align: left;
-				font-size: 15px;
-				color: #ababab;
-				margin-top: auto;
-				padding-bottom: 0px;
-			}
+		.form-grid label {
+			text-align: left;
+			font-size: 15px;
+			color: #ababab;
+			margin-top: auto;
+			padding-bottom: 0px;
+		}
 
 		.required {
 			color: var(--error-color);
@@ -291,25 +291,25 @@
 			align-items: center;
 		}
 
-			.form-grid-unusual label {
-				text-align: left;
-				font-size: 15px;
-				color: #ababab;
-				margin-top: auto;
-				padding-bottom: 2px;
-			}
+		.form-grid-unusual label {
+			text-align: left;
+			font-size: 15px;
+			color: #ababab;
+			margin-top: auto;
+			padding-bottom: 2px;
+		}
 
-			.form-grid-unusual textarea {
-				font-family: YS Display, YS Text, sans-serif;
-				padding: 15px;
-				border: 0px solid var(--border-color);
-				border-radius: 10px;
-				background: var(--input-bg);
-				font-size: 15px;
-				resize: vertical;
-				box-sizing: border-box;
-				min-height: 50px;
-			}
+		.form-grid-unusual textarea {
+			font-family: YS Display, YS Text, sans-serif;
+			padding: 15px;
+			border: 0px solid var(--border-color);
+			border-radius: 10px;
+			background: var(--input-bg);
+			font-size: 15px;
+			resize: vertical;
+			box-sizing: border-box;
+			min-height: 50px;
+		}
 
 		.checkbox-section {
 			margin-top: 15px;
@@ -336,14 +336,14 @@
 			flex-shrink: 0;
 		}
 
-			.checkbox-label input {
-				padding: 15px;
-				border: 0px solid var(--border-color);
-				border-radius: 10px;
-				background: var(--input-bg);
-				margin-bottom: 10px;
-				font-size: 17px;
-			}
+		.checkbox-label input {
+			padding: 15px;
+			border: 0px solid var(--border-color);
+			border-radius: 10px;
+			background: var(--input-bg);
+			margin-bottom: 10px;
+			font-size: 17px;
+		}
 
 		.checkbox-container {
 			display: flex;
@@ -370,21 +370,21 @@
 			position: relative;
 		}
 
-			.styled-checkbox:checked {
-				background-color: var(--accent-color);
-				border-color: var(--accent-color);
-			}
+		.styled-checkbox:checked {
+			background-color: var(--accent-color);
+			border-color: var(--accent-color);
+		}
 
-				.styled-checkbox:checked::after {
-					content: '✓';
-					position: absolute;
-					top: 50%;
-					left: 50%;
-					transform: translate(-50%, -50%);
-					color: var(--primary-color);
-					font-size: 14px;
-					font-weight: bold;
-				}
+		.styled-checkbox:checked::after {
+			content: '✓';
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			color: var(--primary-color);
+			font-size: 14px;
+			font-weight: bold;
+		}
 
 		.checkbox-item {
 			display: flex;
@@ -398,11 +398,11 @@
 			gap: 2px;
 		}
 
-			.checkbox-item-icon span {
-				font-size: 24px;
-				line-height: 1;
-				padding: 5px 5px 0 0;
-			}
+		.checkbox-item-icon span {
+			font-size: 24px;
+			line-height: 1;
+			padding: 5px 5px 0 0;
+		}
 
 		.checkbox-item-with-input {
 			display: flex;

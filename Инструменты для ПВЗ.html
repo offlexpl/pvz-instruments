@@ -44,8 +44,8 @@
 		}
 
 		.sidebar {
-			min-width: 260px;
-			max-width: 260px;
+			min-width: 250px;
+			max-width: 250px;
 			background-color: var(--sidebar-bg);
 			color: var(--text-color);
 			display: flex;
@@ -78,7 +78,9 @@
 			gap: 5px;
 		}
         .sidebar-menu-bottom {
-            width: 260px;
+			min-width: 250px;
+			max-width: 250px;
+			padding: 5px 0;
             flex: 1;
             display: flex;
             align-items: flex-end;
@@ -716,7 +718,8 @@
 					</svg>
 					<span>⠀Анализ акта услуг</span>
 				</div>
-				<div class="sidebar-menu-bottom">
+			</div>
+			<div class="sidebar-menu-bottom">
 					<!-- Yandex.RTB R-A-20111301-1 -->
 					<div id="yandex_rtb_R-A-20111301-1"></div>
 					<script>
@@ -728,7 +731,6 @@
 						})
 					</script>
 				</div>
-			</div>
 		</div>
 <!-- Главная страница -->
 		<div class="main-content">
@@ -922,14 +924,13 @@
 						</div>
 					</div>
 				</div>
-				<!-- Yandex.RTB R-A-20111301-2 -->
-				<div id="yandex_rtb_R-A-20111301-2"></div>
+				<!-- Yandex.RTB R-A-20111301-4 -->
 				<script>
 					window.yaContextCb.push(() => {
 						Ya.Context.AdvManager.render({
-							"blockId": "R-A-20111301-2",
-							"renderTo": "yandex_rtb_R-A-20111301-2",
-							"type": "feed"
+							"blockId": "R-A-20111301-4",
+							"type": "floorAd",
+							"platform": "desktop"
 						})
 					})
 				</script>
